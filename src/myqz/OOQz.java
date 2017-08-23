@@ -1,5 +1,8 @@
 package myqz;
 import java.util.*;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class OOQz {
 	
@@ -24,10 +27,16 @@ public class OOQz {
 	private List<String> WhenAsked	= new ArrayList<String>();
 	
 	private List<Question> questions = new ArrayList<Question>();
+	
+	// static block gets called when class is created:
 	{
 		questions.add(new Question("AQT", "QAT", 100));
 		questions.add(new Question("IQS", "QIS", 100));
 		questions.add(new Question("AEU", "EAU", 100));
+	}
+	
+	public static void main(String[] args) {
+		new OOQz().readFile();
 	}
 
 	public void initialize() {
@@ -53,6 +62,34 @@ public class OOQz {
 		this.WhenAsked.add("-15");
 		this.WhenAsked.add("-15");
 		this.WhenAsked.add("-15");
+	}
+	public List<Question> readFile() {
+		List<Question> lis = new ArrayList<Question>();
+	    Scanner scanner;
+	    try {
+			scanner = new Scanner(new FileReader("mystuff.qz"));
+		    scanner.useDelimiter("\\t");
+		    
+		    while(scanner.hasNextLine()) {
+	    		String line = scanner.nextLine();
+	    		String[] fs = line.split("\t");
+	    		lis.add(new Question(fs[0], fs[1], Integer.parseInt(fs[2])));
+		    }
+		    scanner.close();
+	    }
+	    catch (Exception exc) {
+	    	System.out.println("exc:" + exc);
+	    }
+	    return lis;
+	}
+
+	public void writeFile(String fileName) {
+		String text = OOQzUtils.questionsToString(this.questions);
+		try {
+			Files.write(Paths.get(fileName), text.getBytes());
+		} catch (IOException exc) {
+			System.out.println("writeFile exc:" + exc);
+		}		
 	}
 	
 	public void askQ(int question) {
@@ -282,4 +319,5 @@ public class OOQz {
 	public List<Question> getQuestions() {
 		return questions;
 	}
+
 }
