@@ -6,11 +6,10 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class OOQzUtils {
-
 	
 	// a generic method which reads a file as a string
 	// it's not really related specifically to this class
-	public static String readFile(String fileName) {
+	public static String readFile(String fileName) throws Exception {
 		String sReturn = "";
 		
 		try {
@@ -19,6 +18,7 @@ public class OOQzUtils {
 		}
 		catch (Exception exc) {
 			System.out.println("readFile exc:" + exc);
+			throw new Exception("" + exc);
 		}
 		return sReturn;
 	}

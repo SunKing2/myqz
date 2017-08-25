@@ -1,9 +1,9 @@
 package myqz;
 
 public class Question {
-	private String question;
-	private String answer;
-	private int rating;
+	protected String question;
+	protected String answer;
+	protected int rating;
 	
 	Question(String question, String answer, int rating) {
 		this.question = question;
