@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class OOQzUtils {
+public class QzUtils {
 	
 	// a generic method which reads a file as a string
 	// it's not really related specifically to this class
@@ -28,10 +28,12 @@ public class OOQzUtils {
 			sReturn += 
 					q.getQuestion() + '\t' +
 					q.getAnswer() + '\t' +
-					q.getRating() + '\t' + "0\tCO\t\n";
+					q.getRating() + '\t' +
+					q.getAge() + '\t' + 
+					"CO\t\n";
 		}
 		//trim off trailing \n
-		sReturn = sReturn.substring(0, sReturn.length()-1);
+		//sReturn = sReturn.substring(0, sReturn.length()-1);
 
 		return sReturn;
 	}

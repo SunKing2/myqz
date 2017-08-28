@@ -2,8 +2,9 @@ package myqz;
 
 public class QzQuestion extends Question {
 	
-	protected int age;
 	protected String flags;
+	protected int whenAsked;
+	protected int readInOrder;
 
 	QzQuestion(String question, String answer, int rating, int age, String flags) {
 		super(question, answer, rating);
@@ -12,14 +13,6 @@ public class QzQuestion extends Question {
 	}
 	
 //   nothing useful below this line
-	public int getAge() {
-		return age;
-	}
-
-	public void setAge(int age) {
-		this.age = age;
-	}
-
 	public String getFlags() {
 		return flags;
 	}
@@ -27,6 +20,24 @@ public class QzQuestion extends Question {
 	public void setFlags(String flags) {
 		this.flags = flags;
 	}
-    // nothing useful from here on, or above here either, 
+
+	public int getWhenAsked() {
+		return whenAsked;
+	}
+
+	public void setWhenAsked(int whenAsked) {
+		this.whenAsked = whenAsked;
+	}
+
+	public int getReadInOrder() {
+		return readInOrder;
+	}
+
+	public void setReadInOrder(int readInOrder) {
+		this.readInOrder = readInOrder;
+	}
+
+	
+	// nothing useful from here on, or above here either, 
 	// put your code before previous useless setters/getters
 }

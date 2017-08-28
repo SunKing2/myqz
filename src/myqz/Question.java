@@ -4,6 +4,7 @@ public class Question {
 	protected String question;
 	protected String answer;
 	protected int rating;
+	protected int age = 0;
 	
 	Question(String question, String answer, int rating) {
 		this.question = question;
@@ -35,6 +36,11 @@ public class Question {
 		this.rating = rating;
 	}
 
+	public int getAge() {
+		return age;
+	}
 
-
+	public void setAge(int age) {
+		this.age = age;
+	}
 }
