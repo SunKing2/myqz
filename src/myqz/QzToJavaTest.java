@@ -2,6 +2,8 @@ package myqz;
 
 import static org.junit.Assert.*;
 
+import java.util.*;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,11 +13,22 @@ public class QzToJavaTest {
 
 	private static final String QZ_INPUT_FILE = "mystuff.qz";
 	private static final String QZ_OUTPUT_FILE = "myout.qz";
-	private static final String EXPECTED_FINAL_FILE_CONTENTS = 
+	private static final String EXPECTED_ALGORITHM0_FINAL_FILE_CONTENTS = 
 			"GUV	GUV VUG	47	1503615679	CO	\n" + 
 			"DIOOT	OOTID	21	1503615683	CO	\n" + 
 			"MNOU	MUON	31	1503615681	CO	\n" + 
 			"HQRSU	QURSH	100	1503606581	CO	\n" + 
+			"NSY	SYN	67	1503615676	CO	\n" + 
+			"AFLN	FLAN	67	1503615677	CO	\n" + 
+			"DEEF	FEED	100	0	CO	\n" + 
+			"AAFNU	FAUNA	67	1503615678	CO	\n" + 
+			"";
+	
+	private static final String EXPECTED_ALGORITHM1_FINAL_FILE_CONTENTS =
+			"GUV	GUV VUG	47	1503615679	CO	\n" + 
+			"DIOOT	OOTID	100	1503495163	CO	\n" + 
+			"MNOU	MUON	31	1503615681	CO	\n" + 
+			"HQRSU	QURSH	46	1503615683	CO	\n" + 
 			"NSY	SYN	67	1503615676	CO	\n" + 
 			"AFLN	FLAN	67	1503615677	CO	\n" + 
 			"DEEF	FEED	100	0	CO	\n" + 
@@ -76,7 +89,8 @@ public class QzToJavaTest {
 	
 	// test that the entire question set ran with algorithm 0
 	@Test
-	public void testDoRunQuiz() {
+	public void testDoRunQuizAlgorithm0() {
+		qz.setAlgorithm(1.0, 0.0, 0.0, 0.0);
 		qz.doRunQuiz(null);
 		String sActualFileContents = "";
 		try {
@@ -84,7 +98,21 @@ public class QzToJavaTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		assertEquals(EXPECTED_FINAL_FILE_CONTENTS, sActualFileContents);
+		assertEquals(EXPECTED_ALGORITHM0_FINAL_FILE_CONTENTS, sActualFileContents);
+	}
+	
+	@Test
+	//TODO uncomment test
+	public void testDoRunQuizAlgorithm1() {
+		qz.setAlgorithm(0.0, 1.0, 0.0, 0.0);
+		qz.doRunQuiz(null);
+		String sActualFileContents = "";
+		try {
+			sActualFileContents = QzUtils.readFile(QZ_OUTPUT_FILE);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(EXPECTED_ALGORITHM1_FINAL_FILE_CONTENTS, sActualFileContents);
 	}
 	
 	private void assertQByRating(int index, String expected) {

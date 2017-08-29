@@ -32,6 +32,7 @@ public class QzToJava {
 	  'jjc',     '30;20;40;10',
 	  );
 	*/
+	List<Double> algProbs = new ArrayList<Double>(Arrays.asList(0.3, 0.2, 0.4, 0.1));
 	
 
 	private String fileData = 
@@ -68,6 +69,7 @@ public class QzToJava {
 	
 	public static void main(String[] args) {
 		QzToJava qtj = new QzToJava();
+		qtj.setAlgorithm(0.0, 1.0, 0.0, 0.0);
 		qtj.doRunQuiz(args);
 	}
 
@@ -92,7 +94,7 @@ public class QzToJava {
 		mungeData();
 		
 		//create algProbs List
-		List<Double> algProbs = normalizeAlgorithmDistribution();
+		//List<Double> algProbs = normalizeAlgorithmDistribution();
 		
 
 		initializeBeforeAsk();
@@ -123,6 +125,7 @@ public class QzToJava {
 		    		rc = askInOrder(questionsByRating);
 		    		break;
 		    	case 1:
+		    		System.out.println("qba 0:" + questionsByAge.get(0).question);
 		    		rc = askInOrder(questionsByAge);
 		    		break;
 		    	case 3:
@@ -142,6 +145,7 @@ public class QzToJava {
 		    tries = 0;
 		}
 		saveData();
+		System.out.println(this.getQuestionsAsString());
 		promptQord--;
 	}
 
@@ -288,23 +292,12 @@ public class QzToJava {
 			int result = askQ(quest);
 			// even if give up (blank answer), still 0
 			
-			System.out.println(this.getQuestionsAsString());
+			//System.out.println(this.getQuestionsAsString());
 			
 			if (result == 0) { return 0; } // asked
 			if (result == 1) { return 2; } // EOF
 		}
 		return 1;
-	}
-
-	// TODO implement this properly
-	// package visibility due to test case
-	List<Double> normalizeAlgorithmDistribution() {
-		List<Double> lis = new ArrayList<Double>();
-		lis.add(1.0); // (.3);
-		lis.add(0.0); // (.2);
-		lis.add(0.0); // (.4);
-		lis.add(0.0); // (.1);
-		return lis;
 	}
 
 	private Double myRand(int multiplier) {
@@ -332,7 +325,20 @@ public class QzToJava {
 
 		// qByAge list sort questions
 		questionsByAge = new ArrayList<>(questions);
-		Collections.sort(questionsByAge, Comparator.comparingInt(QzQuestion::getAge));
+		//Collections.sort(questionsByAge, Comparator.comparingInt(QzQuestion::getAge));
+	    Comparator<QzQuestion> ageComparator
+	      = Comparator.comparing(
+	        QzQuestion::getAge, (s1, s2) -> {
+	        	if (s2.compareTo(s1) == 0) {
+	        		//Double ran = myRand(3);
+	        		//System.out.println("ran=" + ran);
+	        		//int compareValue = ran.intValue()-1;
+	        		//System.out.println("compareValue=" + compareValue);
+	        		//return compareValue;
+	        	}
+	            return s1.compareTo(s2);
+	        });
+	    Collections.sort(questionsByAge, ageComparator);
 		
 		// qByRating list sort questions
 		questionsByRating = new ArrayList<>(questions);
@@ -382,5 +388,9 @@ public class QzToJava {
 		this.fileNumDirty.add(0); // first file not written to yet
 		this.fileNumFileName.add(fileName);
 		this.fileNumQuestionCount.add(iFileNumQuestions);
+	}
+
+	public void setAlgorithm(double d, double e, double f, double g) {
+		this.algProbs = new ArrayList<Double>(Arrays.asList(d, e, f, g));
 	}
 }
