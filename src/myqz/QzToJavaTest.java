@@ -2,8 +2,6 @@ package myqz;
 
 import static org.junit.Assert.*;
 
-import java.util.*;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,6 +31,17 @@ public class QzToJavaTest {
 			"AFLN	FLAN	67	1503615677	CO	\n" + 
 			"DEEF	FEED	100	0	CO	\n" + 
 			"AAFNU	FAUNA	67	1503615678	CO	\n" + 
+			"";
+
+	private static final String EXPECTED_ALGORITHM2_FINAL_FILE_CONTENTS =
+			"GUV	GUV VUG	47	1503615679	CO	\n" + 
+			"DIOOT	OOTID	21	1503615682	CO	\n" + 
+			"MNOU	MUON	45	1503587550	CO	\n" + 
+			"HQRSU	QURSH	46	1503615677	CO	\n" + 
+			"NSY	SYN	100	0	CO	\n" + 
+			"AFLN	FLAN	100	0	CO	\n" + 
+			"DEEF	FEED	67	1503615676	CO	\n" + 
+			"AAFNU	FAUNA	67	1503615681	CO	\n" + 
 			"";
 
 	@Before
@@ -102,7 +111,6 @@ public class QzToJavaTest {
 	}
 	
 	@Test
-	//TODO uncomment test
 	public void testDoRunQuizAlgorithm1() {
 		qz.setAlgorithm(0.0, 1.0, 0.0, 0.0);
 		qz.doRunQuiz(null);
@@ -113,6 +121,19 @@ public class QzToJavaTest {
 			e.printStackTrace();
 		}
 		assertEquals(EXPECTED_ALGORITHM1_FINAL_FILE_CONTENTS, sActualFileContents);
+	}
+	
+	@Test
+	public void testDoRunQuizAlgorithm2() {
+		qz.setAlgorithm(0.0, 0.0, 1.0, 0.0);
+		qz.doRunQuiz(null);
+		String sActualFileContents = "";
+		try {
+			sActualFileContents = QzUtils.readFile(QZ_OUTPUT_FILE);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertEquals(EXPECTED_ALGORITHM2_FINAL_FILE_CONTENTS, sActualFileContents);
 	}
 	
 	private void assertQByRating(int index, String expected) {

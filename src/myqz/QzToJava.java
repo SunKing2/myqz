@@ -69,7 +69,7 @@ public class QzToJava {
 	
 	public static void main(String[] args) {
 		QzToJava qtj = new QzToJava();
-		qtj.setAlgorithm(0.0, 1.0, 0.0, 0.0);
+		qtj.setAlgorithm(0.0, 0.0, 1.0, 0.0);
 		qtj.doRunQuiz(args);
 	}
 
@@ -93,6 +93,8 @@ public class QzToJava {
 		}
 		mungeData();
 		
+		System.out.println("rt3 is " + ratingTree.get(3));
+		
 		//create algProbs List
 		//List<Double> algProbs = normalizeAlgorithmDistribution();
 		
@@ -101,11 +103,10 @@ public class QzToJava {
 		
 		@SuppressWarnings("unused")
 		int promptQord = 0;
-		@SuppressWarnings("unused")
 		int tries = 0;
 		
 		this.fakeTimeCounter = QzToJava.HARDWIRED_FIXME_START_TIME + 10;
-		while(true) {
+		while(tries < 20) {
 
 		   // pick an algorithm
 		    int algorithm = 0;
@@ -120,6 +121,8 @@ public class QzToJava {
 		    // ask the question
 		    int rc;
 		    System.out.println("algorithm:" + algorithm);
+			System.out.println("rt3 is " + ratingTree.get(3));
+
 		    switch(algorithm) {
 		    	case 0:
 		    		rc = askInOrder(questionsByRating);
@@ -185,7 +188,7 @@ public class QzToJava {
 		//    . "  (" . (FormatRating $gQData[$q*$k'fields+$k'fRating])
 		//    . "-$config'max_rating)\n";
 		this.errors.add("" + quest.getReadInOrder());
-		quest.rating = this.configMaxRating;
+		this.setRating(quest, this.configMaxRating);
 		//this.prompt'lastq = $q;
 		//promptLastQ = q;
 		return 0;
@@ -217,10 +220,26 @@ public class QzToJava {
 	    System.out.println( "Correct.  (" + oldRating + ' ' + newRating + ' ' + oldAge + ' ' + newAge + ')');
 	    qCorrect++;
 		
-		quest.rating = newRating;
+		setRating(quest, newRating);
 		
 		touchQ(quest);
 		//promptLastQ = q;
+	}
+	
+	private void setRating(QzQuestion quest, int newRating) {
+		int qNumber = quest.readInOrder;
+		int oldRating = quest.rating;
+		if (newRating != oldRating) {
+			quest.rating = newRating;
+			System.out.println("jTouching:" + qNumber);
+			touchQ(quest);
+		}
+		int diff = newRating - oldRating;
+	    totalRating += diff;
+		while (qNumber < qCount) { // ELFS: prove that this works
+		      ratingTree.set(qNumber, ratingTree.get(qNumber) + diff);
+		      qNumber |= qNumber+1;
+		}
 	}
 	
 	private void touchQ(QzQuestion quest) {
@@ -276,8 +295,42 @@ public class QzToJava {
 	}
 
 	private int askRandom() {
-		myRand(1);
-		return askInOrder(questionsByAge);
+
+
+		  for (int i = 1; i <= 20; i++) {
+		    double rand = myRand(totalRating);
+		    System.out.println("===" + " i=" + i + " totalRating=" + totalRating + " rand=" + rand);
+		    int q = 0;
+		    int width = qCount2;
+		    while (width > 1) {
+		      width >>= 1;
+		      int mid = q + width;
+		      if (i == 4 && promptQOrd == 6) {
+		        	//print "xxx width $width tree $gRatingTree[$mid-1]\n";
+		    	    System.out.println("jjj width " + width + " mid-1 " + (mid-1)  + " tree " + ratingTree.get(mid-1)  );
+		        }
+
+		      if (mid <= qCount && rand >= ratingTree.get(mid-1)) {
+			    rand -= ratingTree.get(mid-1);
+			    q = mid;
+			  }
+		    }
+		    // "q:$q promptqord: $promptqord gWhenAsked: $gWhenAsked[$q]\n";
+		    System.out.println("q:" + q + " promptqord:" + promptQOrd + " gWhenAsked:" + questions.get(q).whenAsked );
+
+		    if (promptQOrd - questions.get(q).whenAsked >= configMri) {
+		      // print "$q: ";
+		      int result = askQ(questions.get(q));
+		      if (result == 0) { return 0; } // asked
+		      if (result == 1) { return 2; } // EOF
+		    }
+		    else {
+		    	//  print "skipping $q\n";
+		    }
+		  }
+		  return 1;
+		  	
+	
 	}
 
 	private int askReview() {
@@ -352,12 +405,35 @@ public class QzToJava {
 	}
 
 	private int createRatingTreeReturningTotalRating() {
+		
+		// create ratingTree
+		totalRating = 0;
+		
+		for (int q = 0; q < qCount; q++) {
+			int rating = questions.get(q).rating;
+			ratingTree.add(rating);
+			totalRating += rating;
+			if (q % 2 == 0) {
+				continue;
+			}
+			int t1 = q - 1;
+			//$gRatingTree[$q] += $gRatingTree[$t1];
+			ratingTree.set(q, ratingTree.get(q) + ratingTree.get(t1));
+		    int t2 = 1;
+		    int t3 = q & (1 + q);
+		    while ((t1-=t2) > t3) { 
+		    	t2 += t2;
+		    	ratingTree.set(q, ratingTree.get(q) + ratingTree.get(t1)); 
+		    }
+		}
+		// end creating ratingTree
+		
 		int tot = 0;
 		int iQuestion = 0;
-		for (QzQuestion q: questions) {
-			tot += q.rating;
-			String s = this.qByRating.get(q.rating);
-			this.qByRating.set(q.rating, "" + s + iQuestion + ' ');
+		for (QzQuestion quest: questions) {
+			tot += quest.rating;
+			String s = this.qByRating.get(quest.rating);
+			this.qByRating.set(quest.rating, "" + s + iQuestion + ' ');
 			iQuestion++;
 		}
 		return tot;
@@ -381,8 +457,8 @@ public class QzToJava {
 			
 			String[] fields = sLine.split("\\t");
 			QzQuestion qNew = new QzQuestion(fields[0], fields[1], Integer.parseInt(fields[2]), Integer.parseInt(fields[3]), fields[4]);
-			iFileNumQuestions++;
 			qNew.setReadInOrder(iFileNumQuestions);
+			iFileNumQuestions++;
 			questions.add(qNew);
 		}
 		this.fileNumDirty.add(0); // first file not written to yet
