@@ -3,7 +3,6 @@ package myqz;
 public class QzFS {
 	
 	public QzFS(String sFileData) {
-		//this.fileData = sFileData;
 	}
 
 	public String process(String[] answers, String[] responses, double[] responseTimes) {
@@ -14,7 +13,6 @@ public class QzFS {
 		int elapsedSeconds = 4;
 
 		int nNoBugTotal = 2;
-		//String solOrDiff = "difficulty";
 		boolean showMeanDifficulty = true;
 		double meanDifficulty = 100.0;
 		String meanDifficultyUnits = "s";
@@ -27,15 +25,19 @@ public class QzFS {
 		String oldestSolution = "never";
 		String blaString = "";
 		double totalTime = 0;
+		double totalCorrectTime = 0;
+		int totalRating = 0;
 		
 		for (int i = 0; i < answers.length; i++) {
 			totalTime += responseTimes[i];
 			if (responses[i].toUpperCase().equals(answers[i].toUpperCase())) {
 				nCorrect++;
+				totalRating += this.evaluateScore(true, 100, responseTimes[i]);
+				totalCorrectTime += responseTimes[i];
 				showMeanDifficulty = false;
 				showMeanSolutionTime = true;
 				
-				meanDifficulty = 67.0;
+				meanSolutionTime = 67;
 				meanSolutionAge = 1;
 				meanSolutionAgeUnits = "s";
 				oldestSolution = "3 s";
@@ -48,12 +50,23 @@ public class QzFS {
 
 		if (nCorrect > 0) {
 			blaString = String.format("You took on average %.1f seconds to answer correctly.\n" + 
-					"Congratulations!\n", totalTime/responses.length);
+					"Congratulations!\n", totalCorrectTime/nCorrect);
 		}
 		else {
 			oldestSolution = "never";
 		}
 			
+		if (nCorrect == 1) {
+			meanSolutionTime = totalRating / nCorrect;
+			int unsolved = 1;  // used just to calc meanDifficulty
+			int unseen = 0;    // used just to calc meanDifficulty
+			int seen = answers.length;  // used just to calc meanDifficulty
+			meanDifficulty = (100.0*(unsolved+unseen)+totalRating)/(seen+unseen);
+			showMeanDifficulty = true;
+			meanSolutionAge = 8706;
+			meanSolutionAgeUnits = "d";
+			oldestSolution = "never";
+		}
 
 		return processLine(alphagram(answers[0]), answers[0], responses[0], 1, oldScore, responseTimes[0]) +
 		processLine(alphagram(answers[1]), answers[1], responses[1], 2, oldScore, responseTimes[1]) +
@@ -90,7 +103,7 @@ public class QzFS {
 		  String.format(
 		  "Mean solution time: %.1f %s\n" + 
 		  "",
-		  meanDifficulty, meanDifficultyUnits);
+		  meanSolutionTime, meanSolutionTimeUnits);
 		String statsBaseMD =
 		  String.format(
 		  "Mean difficulty: %.1f %s\n" + 
@@ -137,6 +150,9 @@ public class QzFS {
 		  "";
 		String s3 = String.format(s2, nCorrect, nBugTotal, 100.0 * nCorrect / nBugTotal,
 				durationToString(elapsedSeconds));
+		if (nCorrect == 1) {
+			s3 = s3.replace("questions correctly", "question correctly");
+		}
 		return s3;
 	}
 	
@@ -186,19 +202,11 @@ public class QzFS {
 		return String.format("The correct answer is '%s'  (%d-%d)\n", answer, oldScore, newScore);
 	}
 	
-	private int evaluateScore(boolean right, int oldScore, double timeToSolve) {
-		if (right == false) {
+	private int evaluateScore(boolean correct, int oldScore, double timeToSolve) {
+		if (correct == false) {
 			return 100;
 		}
-		int newScore = 0;
-		// TODO remove this if and use the 2nd formula to calculate score
-		if (timeToSolve - (int)(timeToSolve) == 0) {
-			newScore =  (int) (right ? 70 - timeToSolve : 100);
-		}
-		else {
-			newScore = (int)((1+2* oldScore + timeToSolve) / 3);
-		}
-		return newScore;
+		return (int)((1+2* oldScore + timeToSolve) / 3);
 	}
 
 }
