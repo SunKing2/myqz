@@ -1,11 +1,15 @@
 package myqz;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
 public class QzToJava {
+	
+	private static boolean INTERACTIVE = false;
 	
 	private static final int HARDWIRED_FIXME_START_TIME = 1503615666;
 
@@ -17,21 +21,6 @@ public class QzToJava {
 	
 	private int configMaxRating = 100;               // maximum difficulty rating in seconds
 	private int configMri = 15;                      // minimum interval between repeats
-	// $configNotes = 'notes.txt'; # external notes database
-	// $config::question_filter = sub { 1 }; # pattern questions must match
-	// $config::answer_filter = sub { 1 }; # pattern answer must match
-	// private String configProgram = "jjc";            // default program
-	// private int configTypingSpeed = 9;               // user typing speed in characters per second
-
-	// TODO make this work
-	/*
-	%config'programs = (
-	  'hardest', '100;0;0;0',
-	  'oldest',  '0;100;0;0',
-	  'random',  '0;0;100;0',
-	  'jjc',     '30;20;40;10',
-	  );
-	*/
 	List<Double> algProbs = new ArrayList<Double>(Arrays.asList(0.3, 0.2, 0.4, 0.1));
 	
 
@@ -44,6 +33,7 @@ public class QzToJava {
 			"AFLN	FLAN	100	0	CO	\n" + 
 			"DEEF	FEED	100	0	CO	\n" + 
 			"AAFNU	FAUNA	100	0	CO	";
+	
 
 	// package because test cases need to access them
 	List<QzQuestion> questions = new ArrayList<QzQuestion>();
@@ -60,16 +50,57 @@ public class QzToJava {
 	
 	private int promptQOrd = 0;
 	
-	List<String> errors = new ArrayList<String>();
+	List<QzQuestion> errors = new ArrayList<QzQuestion>();
 	List<Integer> fileNumDirty = new ArrayList<Integer>();
 	List<String> fileNumFileName = new ArrayList<String>();
 	List<Integer> fileNumQuestionCount = new ArrayList<Integer>();
-	List<String> qByRating = new ArrayList<String>();//String!!
-	List<Integer> ratingTree = new ArrayList<Integer>();
 	
 	public static void main(String[] args) {
+		INTERACTIVE = true;
 		QzToJava qtj = new QzToJava();
-		qtj.setAlgorithm(0.0, 0.0, 1.0, 0.0);
+		
+		qtj.fileData = "AQT	QAT	20	1503667973	CO	\n" + 
+				"IQS	QIS	13	1503404498	CO	\n" + 
+				"AEU	EAU	13	1503321694	CO	\n" + 
+				"AQU	QUA	31	1503292841	CO	\n" + 
+				"ADIQ	QADI QAID	22	1503314490	CO	\n" + 
+				"EJO	JOE	14	1503336101	CO	\n" + 
+				"AIJ	AJI	22	1503314831	CO	\n" + 
+				"EEZ	ZEE	16	1503748618	CO	\n" + 
+				"CINQ	CINQ	15	1503473873	CO	\n" + 
+				"AIRW	WAIR	45	1503860167	CO	\n" + 
+				"DNOUV	VODUN	32	1503575584	CO	\n" + 
+				"DEIOV	VIDEO	68	1503407134	CO	\n" + 
+				"AOTU	AUTO OUTA	45	1503534861	CO	\n" + 
+				"AJPU	JAUP PUJA	67	1503407113	CO	\n" + 
+				"DGI	DIG GID	46	1503415319	CO	\n" + 
+				"DFIN	FIND	45	1503407859	CO	\n" + 
+				"BNU	BUN NUB	67	1503407124	CO	\n" + 
+				"ADEX	AXED	45	1503408046	CO	\n" + 
+				"KOY	YOK	32	1503417605	CO	\n" + 
+				"CEITV	CIVET EVICT	47	1503860001	CO	\n" + 
+				"EIIPRU	EURIPI	68	1503666280	CO	\n" + 
+				"BILTZ	BLITZ	67	1503666042	CO	\n" + 
+				"AGRUU	AUGUR	46	1503751808	CO	\n" + 
+				"EOPRV	PERVO PROVE	48	1503836993	CO	\n" + 
+				"AJMOR	JORAM MAJOR	50	1503673734	CO	\n" + 
+				"AJLOP	JALOP	67	1503666231	CO	\n" + 
+				"DEEFU	FEUED	67	1503666234	CO	\n" + 
+				"EINNU	ENNUI	45	1503865379	CO	\n" + 
+				"BEGIO	BOGIE	67	1503666272	CO	\n" + 
+				"AEFRW	WAFER	70	1504016600	CO	\n" + 
+				"AELNV	NAVEL VENAL	100	0	CO	\n" + 
+				"HINNY	HINNY	100	0	CO	\n" + 
+				"AGHIZ	GHAZI	67	1504016946	CO	\n" + 
+				"AEIUVX	EXUVIA	100	0	CO	\n" + 
+				"EENOVZ	EVZONE	69	1504017031	CO	\n" + 
+				"EELTU	ELUTE	100	0	CO	\n" + 
+				"AIKUZ	AZUKI	69	1504016798	CO	\n" + 
+				"BCEEZ	ZEBEC	68	1504016802	CO	\n" + 
+				"EENWY	WEENY	67	1504016711	CO	\n" + 
+				"";
+		
+		
 		qtj.doRunQuiz(args);
 	}
 
@@ -93,12 +124,6 @@ public class QzToJava {
 		}
 		mungeData();
 		
-		System.out.println("rt3 is " + ratingTree.get(3));
-		
-		//create algProbs List
-		//List<Double> algProbs = normalizeAlgorithmDistribution();
-		
-
 		initializeBeforeAsk();
 		
 		@SuppressWarnings("unused")
@@ -111,24 +136,29 @@ public class QzToJava {
 		   // pick an algorithm
 		    int algorithm = 0;
 		    {
-		      Double t = myRand(1);
+		      double t = myRand(1);
 		      while (t>0){ 
 		    	  t -= algProbs.get(algorithm++);
 		      }
 		      algorithm--;
 		    }
+		    
+		    // lvb check to stop test cases from never ending
+		    if (this.promptQOrd > 100) {
+		    	System.out.println("!!!!!!!!! infinite loop ending at 100");
+		    	System.exit(1);
+		    }
 
 		    // ask the question
 		    int rc;
-		    System.out.println("algorithm:" + algorithm);
-			System.out.println("rt3 is " + ratingTree.get(3));
+		    
+		    System.out.println(algorithm);
 
 		    switch(algorithm) {
 		    	case 0:
 		    		rc = askInOrder(questionsByRating);
 		    		break;
 		    	case 1:
-		    		System.out.println("qba 0:" + questionsByAge.get(0).question);
 		    		rc = askInOrder(questionsByAge);
 		    		break;
 		    	case 3:
@@ -166,30 +196,45 @@ public class QzToJava {
 		String promptText  = String.format("[%d] %s: ", promptQOrd, quest.getQuestion());
 		
 		quest.setWhenAsked(this.promptQOrd);
-		
-	    System.out.println(promptText);
-		if (this.promptQOrd % 3 == 0) { return giveUp(quest); };
 
-		//time = time();
-		// readLine returning $time, and $read
-		// answer = questions.get(q).answer;
-		// read = readLine(time, bLowerCase);
-		//if (! read.equals(answer)) {
-		//	return giveUp();
-		//}
+	    System.out.print(promptText);
+
+	    if (INTERACTIVE) {
+			String answer = quest.answer;
+			String read = readLine();
+
+			if (! read.equals(answer)) {
+				return giveUp(quest);
+			}
+		}
+		else {
+			System.out.println();
+			if (this.promptQOrd % 3 == 0) { return giveUp(quest); };
+		}
+
 		
 		time = 2;
 		gotIt(quest, time);
 		return 0;
 	}
 	
+    // I don't use scanner coz it doesn't work in IDE
+	private String readLine() {
+		String sRet = "syn";
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			sRet = br.readLine();
+			//br.close();
+		} catch (IOException exc) {
+			System.out.println("cot:" + exc);
+		}
+		return sRet.toUpperCase();
+	}
+	
 	private int giveUp(QzQuestion quest) {
 		System.out.println("The correct answer is " + quest.answer);
-		//    . "  (" . (FormatRating $gQData[$q*$k'fields+$k'fRating])
-		//    . "-$config'max_rating)\n";
-		this.errors.add("" + quest.getReadInOrder());
+		this.errors.add(quest);
 		this.setRating(quest, this.configMaxRating);
-		//this.prompt'lastq = $q;
 		//promptLastQ = q;
 		return 0;
 	}
@@ -221,6 +266,7 @@ public class QzToJava {
 	    qCorrect++;
 		
 		setRating(quest, newRating);
+
 		
 		touchQ(quest);
 		//promptLastQ = q;
@@ -231,15 +277,10 @@ public class QzToJava {
 		int oldRating = quest.rating;
 		if (newRating != oldRating) {
 			quest.rating = newRating;
-			System.out.println("jTouching:" + qNumber);
 			touchQ(quest);
 		}
 		int diff = newRating - oldRating;
 	    totalRating += diff;
-		while (qNumber < qCount) { // ELFS: prove that this works
-		      ratingTree.set(qNumber, ratingTree.get(qNumber) + diff);
-		      qNumber |= qNumber+1;
-		}
 	}
 	
 	private void touchQ(QzQuestion quest) {
@@ -296,31 +337,14 @@ public class QzToJava {
 
 	private int askRandom() {
 
-
 		  for (int i = 1; i <= 20; i++) {
 		    double rand = myRand(totalRating);
-		    System.out.println("===" + " i=" + i + " totalRating=" + totalRating + " rand=" + rand);
 		    int q = 0;
-		    int width = qCount2;
-		    while (width > 1) {
-		      width >>= 1;
-		      int mid = q + width;
-		      if (i == 4 && promptQOrd == 6) {
-		        	//print "xxx width $width tree $gRatingTree[$mid-1]\n";
-		    	    System.out.println("jjj width " + width + " mid-1 " + (mid-1)  + " tree " + ratingTree.get(mid-1)  );
-		        }
-
-		      if (mid <= qCount && rand >= ratingTree.get(mid-1)) {
-			    rand -= ratingTree.get(mid-1);
-			    q = mid;
-			  }
-		    }
-		    // "q:$q promptqord: $promptqord gWhenAsked: $gWhenAsked[$q]\n";
-		    System.out.println("q:" + q + " promptqord:" + promptQOrd + " gWhenAsked:" + questions.get(q).whenAsked );
-
-		    if (promptQOrd - questions.get(q).whenAsked >= configMri) {
+		    QzQuestion quest = questions.get(q);
+		    if (promptQOrd - quest.whenAsked >= configMri) {
 		      // print "$q: ";
-		      int result = askQ(questions.get(q));
+		      int result = askQ(quest);
+		      removeQuestionFromLists(quest);
 		      if (result == 0) { return 0; } // asked
 		      if (result == 1) { return 2; } // EOF
 		    }
@@ -334,7 +358,18 @@ public class QzToJava {
 	}
 
 	private int askReview() {
-		return askInOrder(questionsByAge);
+		if (errors.size() > 0 && this.promptQOrd - errors.get(0).whenAsked >= this.configMri) {
+			QzQuestion quest = errors.remove(0);
+			System.out.println("!!!! review ");
+			int ret = askQ(quest);
+			if (ret == 0) {
+				return 0;
+			}
+			else {
+				return 2;
+			}
+		}
+		return 1;
 	}
 
 	private int askInOrder(List<QzQuestion> qList) {
@@ -343,14 +378,18 @@ public class QzToJava {
 			    	continue;
 			}
 			int result = askQ(quest);
-			// even if give up (blank answer), still 0
-			
-			//System.out.println(this.getQuestionsAsString());
-			
+			removeQuestionFromLists(quest);
+
 			if (result == 0) { return 0; } // asked
 			if (result == 1) { return 2; } // EOF
 		}
 		return 1;
+	}
+
+	private void removeQuestionFromLists(QzQuestion quest) {
+		// lvb added these 2
+		questionsByAge.remove(quest);		
+		questionsByRating.remove(quest);
 	}
 
 	private Double myRand(int multiplier) {
@@ -365,17 +404,34 @@ public class QzToJava {
 	void mungeData() {
 		// round up to a power of two
 		for (qCount2 = 1; qCount2 < qCount; qCount2 <<= 1) { }
-		System.out.println("qCount2=" + qCount2);
-		
-		// calculate rating information
-		//@gQByRating = ('') x ($config'max_rating + 2);
-		for (int i = 0; i < this.configMaxRating + 2; i++) {
-			this.qByRating.add(new String(""));
-		}
 		
 		totalRating = createRatingTreeReturningTotalRating();
-		System.out.println("totalRating=" + totalRating);
 
+		sortQuestionsByAge();		
+		sortQuestionsByRating();
+		
+		// populate list with a -15 for each question
+		for (int i = 0; i < this.qCount; i++) {
+			questions.get(i).setWhenAsked(new Integer(-configMri));
+		}
+		System.out.println("munge done");
+	}
+
+	private int createRatingTreeReturningTotalRating() {
+		int ret = 0;
+		for (QzQuestion quest: questions) {
+			ret += quest.rating;
+		}
+		return ret;
+	}
+
+	private void sortQuestionsByRating() {
+		// qByRating list sort questions
+		questionsByRating = new ArrayList<>(questions);
+		Collections.sort(questionsByRating, Comparator.comparingInt(QzQuestion::getRating).reversed());
+	}
+
+	private void sortQuestionsByAge() {
 		// qByAge list sort questions
 		questionsByAge = new ArrayList<>(questions);
 		//Collections.sort(questionsByAge, Comparator.comparingInt(QzQuestion::getAge));
@@ -392,51 +448,6 @@ public class QzToJava {
 	            return s1.compareTo(s2);
 	        });
 	    Collections.sort(questionsByAge, ageComparator);
-		
-		// qByRating list sort questions
-		questionsByRating = new ArrayList<>(questions);
-		Collections.sort(questionsByRating, Comparator.comparingInt(QzQuestion::getRating).reversed());
-		
-		// populate list with a -15 for each question
-		for (int i = 0; i < this.qCount; i++) {
-			questions.get(i).setWhenAsked(new Integer(-configMri));
-		}
-		System.out.println("munge done");
-	}
-
-	private int createRatingTreeReturningTotalRating() {
-		
-		// create ratingTree
-		totalRating = 0;
-		
-		for (int q = 0; q < qCount; q++) {
-			int rating = questions.get(q).rating;
-			ratingTree.add(rating);
-			totalRating += rating;
-			if (q % 2 == 0) {
-				continue;
-			}
-			int t1 = q - 1;
-			//$gRatingTree[$q] += $gRatingTree[$t1];
-			ratingTree.set(q, ratingTree.get(q) + ratingTree.get(t1));
-		    int t2 = 1;
-		    int t3 = q & (1 + q);
-		    while ((t1-=t2) > t3) { 
-		    	t2 += t2;
-		    	ratingTree.set(q, ratingTree.get(q) + ratingTree.get(t1)); 
-		    }
-		}
-		// end creating ratingTree
-		
-		int tot = 0;
-		int iQuestion = 0;
-		for (QzQuestion quest: questions) {
-			tot += quest.rating;
-			String s = this.qByRating.get(quest.rating);
-			this.qByRating.set(quest.rating, "" + s + iQuestion + ' ');
-			iQuestion++;
-		}
-		return tot;
 	}
 
 	public void loadData() {
@@ -445,7 +456,6 @@ public class QzToJava {
 		this.readFile(DEFAULT_FILE_NAME);
 
 		this.qCount = questions.size();
-		System.out.println("qCount=" + qCount);
 	}
 
 	private void readFile(String fileName) {
