@@ -7,8 +7,108 @@ public class QzFS {
 	}
 	
 	public static final boolean REMOVE_DECIMAL = true;
-
+	public static final boolean UNSEEN_FALSE = false;
+	public static final boolean UNSEEN_TRUE = true;
+	
 	public String process(int startTime, int endTime, int algorithm, String[] answers, int[] ratings, int[] ages, String[] responses, double[] responseTimes) {
+		
+		
+		
+		List<QzData> lis = new ArrayList<>();
+
+		QzFSStats2 qs = new QzFSStats2(lis, endTime);
+
+
+		// sort by hardest first:
+		if (algorithm == 0 && ratings[1] > ratings[0]) {
+			// sort each array by hardest first (fake it)
+			Collections.reverse(Arrays.asList(answers));
+			int tmp = ratings[0]; ratings[0] = ratings[1]; ratings[1] = tmp;
+			tmp = ages[0]; ages[0] = ages[1]; ages[1] = tmp;
+		}		
+		
+		
+		int gQCorrect = 0;
+		// You answered x questions correctly has a bug in qz.pl that shows 1 too few 
+		int promptQord = answers.length - 1;
+		long gTotalTime = 0;
+		
+		String sRet = "";
+		
+		for (int i = 0; i < answers.length; i++) {
+			sRet += showQuestion(QzFSUtils.alphagram(answers[i]), i + 1);
+			sRet += showResponse(responses[i]);
+			boolean correct = responses[i].equalsIgnoreCase(answers[i]);
+			// not sure if gTotalTime should be updated only if correct:
+			gTotalTime += ages[i];
+			int newAge = 0;
+			int newRating = 0;
+			if (correct) {
+				gQCorrect++;
+				newRating = this.evaluateRating(correct, ratings[i], responseTimes[i]);
+				String sAgeComment = this.getAgeComment(correct);
+				sRet += showCorrect(ratings[0], newRating, sAgeComment);
+				newAge = endTime - 1;
+			}
+			else {
+				newAge = ages[i];
+				newRating = 100;
+				sRet += showIncorrect(answers[i], ratings[i], newRating);
+			}
+			qs.addQ(newRating, newAge, UNSEEN_FALSE);
+		}
+		String summary = qs.summary(gQCorrect, promptQord, gTotalTime, endTime, startTime);
+		String stats = qs.doListStats();
+		
+		sRet = sRet + 
+				//processLine(QzFSUtils.alphagram(answers[0]), answers[0], endTime, responses[0], 1, ages[0], ratings[0], responseTimes[0]) +
+				//processLine(QzFSUtils.alphagram(answers[1]), answers[1], endTime, responses[1], 2, ages[1], ratings[1], responseTimes[1]) +
+				"No more questions available.\n" +
+				summary +
+				"\nCurrent statistics for this question set:\n" +
+				stats + 
+				"\n";
+		return sRet;
+	}
+	
+	private String getAgeComment(boolean correct) {
+		return "never";
+	}
+	
+	private int evaluateRating(boolean correct, int oldRating, double timeToSolve) {
+		if (correct == false) {
+			return 100;
+		}
+		return (int)((1 + 2.0 * oldRating + timeToSolve) / 3.0);
+	}
+	
+	/*
+	[1] AQT:
+	*/ 
+	// Show's what the system prompts when asking question, (shows no response,  no \n)
+	private String showQuestion(String question, int questionNumber) {
+		return 
+		  String.format("[%d] %s: ", questionNumber, question);
+	}
+
+	// shows what the user typed as a response to a question (includes \n)
+	public String showResponse(String response) {
+		return response + "\n";
+	}
+	
+	private String showCorrect(int oldRating, int newRating, String sAgeComment) {
+		String sReturn;
+		sReturn =  String.format("Correct.  (%s:%d-%d)\n", sAgeComment, oldRating, newRating);
+		return sReturn;
+	}
+	
+	public String showIncorrect(String realAnswer, int oldRating, int newRating) {
+		return String.format("The correct answer is '%s'  (%d-%d)\n", realAnswer, oldRating, newRating);
+	}
+	
+
+//       ===================== ignore below this line ==============	
+	public String xprocess(int startTime, int endTime, int algorithm, String[] answers, int[] ratings, int[] ages, String[] responses, double[] responseTimes) {
 
 		// sort by hardest first:
 		if (algorithm == 0 && ratings[1] > ratings[0]) {
@@ -83,7 +183,7 @@ public class QzFS {
 			meanSolutionAge = endTime - new Double((1.0 + ages[0] + ages[1]) /2.0).intValue();
 			int iOldestSolution = endTime - ages[0];
 			int iOldestSolution2 = endTime - ages[1];
-			oldestSolution = this.secondsToHumanTime(Math.max(iOldestSolution, iOldestSolution2), REMOVE_DECIMAL);
+			oldestSolution = QzFSUtils.secondsToHumanTime(Math.max(iOldestSolution, iOldestSolution2), REMOVE_DECIMAL);
 			meanSolutionTime = 1.0 * totalRating / nCorrect;
 		}
 
@@ -91,8 +191,8 @@ public class QzFS {
 		// it will fail with further testing.
 		// maybe start time plus sum of previous response times would be better?
 		int timeOfResponse = endTime;
-		return processLine(alphagram(answers[0]), answers[0], timeOfResponse, responses[0], 1, ages[0], ratings[0], responseTimes[0]) +
-		processLine(alphagram(answers[1]), answers[1], timeOfResponse, responses[1], 2, ages[1], ratings[1], responseTimes[1]) +
+		return processLine(QzFSUtils.alphagram(answers[0]), answers[0], timeOfResponse, responses[0], 1, ages[0], ratings[0], responseTimes[0]) +
+		processLine(QzFSUtils.alphagram(answers[1]), answers[1], timeOfResponse, responses[1], 2, ages[1], ratings[1], responseTimes[1]) +
 		getSummaryHeader(nCorrect, nBugTotal, elapsedSeconds, sYourAverageCongrats) + 
 		getStats(nNoBugTotal, nCorrect,
 				showMeanSolutionTime, meanSolutionTime,
@@ -100,37 +200,6 @@ public class QzFS {
 				meanSolutionAge, oldestSolution);
 	}
 	
-	private String secondsToHumanTime(int seconds, boolean removeDecimal) {
-		//return secondsToHumanTime(seconds).replace(".0", "");
-		return iSecondsToHumanTime(seconds);
-	}
-	
-	private String secondsToHumanTime(double seconds) {
-		double interval = seconds;
-		if (interval < 120) { return "" + interval + " s"; }
-		interval = interval/60;
-		if (interval < 60) { return "" + interval + " m"; }
-		interval = interval/60;
-		if (interval < 24) { return "" + interval + " h"; }
-		interval = interval/24;
-		return "" + interval + " d";
-	}
-	
-	private String iSecondsToHumanTime(int seconds) {
-		int interval = seconds;
-		if (interval < 120) { return "" + interval + " s"; }
-		interval = interval/60;
-		if (interval < 60) { return "" + interval + " m"; }
-		interval = interval/60;
-		if (interval < 24) { return "" + interval + " h"; }
-		interval = interval/24;
-		return "" + interval + " d";
-	}
-	
-	private String alphagram(String words) {
-		if (words.equals("QAT")) return "AQT";
-		return "IQS";
-	}
 
 	private String getStats(int nNoBugTotal, int solved, 
 			boolean showMeanSolutionTime, double meanSolutionTime, 
@@ -153,17 +222,17 @@ public class QzFS {
 		  String.format(
 		  "Mean solution time: %s\n" + 
 		  "",
-		  this.secondsToHumanTime(meanSolutionTime));
+		  QzFSUtils.secondsToHumanTime(meanSolutionTime));
 		String statsBaseMD =
 		  String.format(
 		  "Mean difficulty: %s\n" + 
 		  "",
-		  this.secondsToHumanTime(meanDifficulty));
+		  QzFSUtils.secondsToHumanTime(meanDifficulty));
 		String statsBaseMSA =
 		  String.format(
 		  "Mean solution age: %s\n" + 
 		  "",
-		  this.secondsToHumanTime(meanSolutionAge, REMOVE_DECIMAL));
+		  QzFSUtils.secondsToHumanTime(meanSolutionAge, REMOVE_DECIMAL));
 		String statsBaseOS =
 		  String.format(
 		  "Oldest solution: %s\n" + 
@@ -199,17 +268,13 @@ public class QzFS {
 		  "\n" + 
 		  "";
 		String s3 = String.format(s2, nCorrect, nBugTotal, 100.0 * nCorrect / nBugTotal,
-				durationToString(elapsedSeconds));
+				QzFSUtils.durationToString(elapsedSeconds));
 		if (nCorrect == 1) {
 			s3 = s3.replace("questions correctly", "question correctly");
 		}
 		return s3;
 	}
 	
-	private String durationToString(int seconds) {
-		return String.format("%d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60));		
-	}
-
 	/*
 	[1] AQT: 
 	The correct answer is 'QAT'  (100-100)
@@ -233,34 +298,18 @@ public class QzFS {
 	}
 
 	/*
-	[1] AQT:
-	*/ 
-	// Show's what the system prompts when asking question
-	//    does not show answer
-	// has a trailing space but no carriage return
-	private String showQuestion(String question, int questionNumber) {
-		return 
-		  String.format("[%d] %s: ", questionNumber, question);
-	}
-	/*
 	The correct answer is 'QAT'  (100-100)
 	*/
 	private String showIfCorrectAndModifyRating(boolean correct, String answer, int timeOfAnswer, int oldAge, int oldRating, int newRating) {
 		if (correct) {
 			String sAgeStuff = "never";
 			if (oldAge > 0) {
-				sAgeStuff = secondsToHumanTime(timeOfAnswer - oldAge, REMOVE_DECIMAL);
+				sAgeStuff = QzFSUtils.secondsToHumanTime(timeOfAnswer - oldAge, REMOVE_DECIMAL);
 			}
 			return String.format("Correct.  (%s:%d-%d)\n", sAgeStuff, oldRating, newRating);
 		}
 		return String.format("The correct answer is '%s'  (%d-%d)\n", answer, oldRating, newRating);
 	}
 	
-	private int evaluateRating(boolean correct, int oldRating, double timeToSolve) {
-		if (correct == false) {
-			return 100;
-		}
-		return (int)((1 + 2.0 * oldRating + timeToSolve) / 3.0);
-	}
 
 }

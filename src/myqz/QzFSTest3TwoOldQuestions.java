@@ -3,8 +3,10 @@ package myqz;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@SuppressWarnings("unused")
 public class QzFSTest3TwoOldQuestions {
 	
 	private QzFS qfs = new QzFS("");
