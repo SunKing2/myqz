@@ -5,6 +5,8 @@ public class QzFS {
 	
 	public QzFS(String sFileData) {
 	}
+	
+	public static final boolean REMOVE_DECIMAL = true;
 
 	public String process(int startTime, int endTime, int algorithm, String[] answers, int[] ratings, int[] ages, String[] responses, double[] responseTimes) {
 
@@ -23,13 +25,13 @@ public class QzFS {
 		int nNoBugTotal = 2;
 		boolean showMeanDifficulty = true;
 		double meanDifficulty = 100.0;
-		String meanDifficultyUnits = "s";
+		//String meanDifficultyUnits = "s";
 		boolean showMeanSolutionTime = false;
 		double meanSolutionTime = 100.0;
-		String meanSolutionTimeUnits = "s";
+		//String meanSolutionTimeUnits = "s";
 		
-		int meanSolutionAge = 17412;
-		String meanSolutionAgeUnits = "d";
+		int meanSolutionAge = 1504396800;
+		//String meanSolutionAgeUnits = "d";
 		String oldestSolution = "never";
 		String sYourAverageCongrats = "";
 		double totalTime = 0;
@@ -47,7 +49,7 @@ public class QzFS {
 				
 				meanSolutionTime = 67;
 				meanSolutionAge = 1;
-				meanSolutionAgeUnits = "s";
+				//meanSolutionAgeUnits = "s";
 				oldestSolution = "3 s";
 			}
 		}
@@ -72,22 +74,20 @@ public class QzFS {
 			meanDifficulty = (100.0*(unsolved+unseen)+totalRating)/(seen+unseen);
 			showMeanDifficulty = true;
 			meanSolutionAge = 8706;
-			meanSolutionAgeUnits = "d";
+			meanSolutionAge *= 86400;
+			//meanSolutionAgeUnits = "d";
 			oldestSolution = "never";
 		}
 		
 		if (endTime > 0) {
 			meanSolutionAge = endTime - new Double((1.0 + ages[0] + ages[1]) /2.0).intValue();
-			String sMeanSolutionAge = this.secondsToHumanTime(meanSolutionAge);
-			meanSolutionAge = parseTimeNum(sMeanSolutionAge);
-			meanSolutionAgeUnits = parseTimeUnits(sMeanSolutionAge);
 			int iOldestSolution = endTime - ages[0];
 			int iOldestSolution2 = endTime - ages[1];
-			oldestSolution = this.secondsToHumanTime(Math.max(iOldestSolution, iOldestSolution2));
+			oldestSolution = this.secondsToHumanTime(Math.max(iOldestSolution, iOldestSolution2), REMOVE_DECIMAL);
 			meanSolutionTime = 1.0 * totalRating / nCorrect;
 		}
 
-		// TODO saying this question was posed at endTime is terribly unaccurate
+		// TODO saying this question was posed at endTime is terribly inaccurate
 		// it will fail with further testing.
 		// maybe start time plus sum of previous response times would be better?
 		int timeOfResponse = endTime;
@@ -95,33 +95,30 @@ public class QzFS {
 		processLine(alphagram(answers[1]), answers[1], timeOfResponse, responses[1], 2, ages[1], ratings[1], responseTimes[1]) +
 		getSummaryHeader(nCorrect, nBugTotal, elapsedSeconds, sYourAverageCongrats) + 
 		getStats(nNoBugTotal, nCorrect,
-				showMeanSolutionTime, meanSolutionTime, meanSolutionTimeUnits,
-				showMeanDifficulty, meanDifficulty, meanDifficultyUnits,
-				meanSolutionAge, meanSolutionAgeUnits, oldestSolution);
+				showMeanSolutionTime, meanSolutionTime,
+				showMeanDifficulty, meanDifficulty,
+				meanSolutionAge, oldestSolution);
 	}
 	
-	private String parseTimeUnits(String sMeanSolutionAge) {
-		int len = sMeanSolutionAge.length();
-		String sub = sMeanSolutionAge.substring(len - 1);
-		return sub;
+	private String secondsToHumanTime(int seconds, boolean removeDecimal) {
+		//return secondsToHumanTime(seconds).replace(".0", "");
+		return iSecondsToHumanTime(seconds);
 	}
-
-	private int parseTimeNum(String sMeanSolutionAge) {
-		int len = sMeanSolutionAge.length();
-		String sub = sMeanSolutionAge.substring(0, len - 2);
-		int iReturn = -1;
-		try {
-			iReturn = Integer.parseInt(sub);
-		}
-		catch (Exception exc) {
-			System.out.println(exc + ": input string:" + sMeanSolutionAge);
-		}
-		return iReturn;
+	
+	private String secondsToHumanTime(double seconds) {
+		double interval = seconds;
+		if (interval < 120) { return "" + interval + " s"; }
+		interval = interval/60;
+		if (interval < 60) { return "" + interval + " m"; }
+		interval = interval/60;
+		if (interval < 24) { return "" + interval + " h"; }
+		interval = interval/24;
+		return "" + interval + " d";
 	}
-
-	private String secondsToHumanTime(int seconds) {
+	
+	private String iSecondsToHumanTime(int seconds) {
 		int interval = seconds;
-		if (interval < 60) { return "" + interval + " s"; }
+		if (interval < 120) { return "" + interval + " s"; }
 		interval = interval/60;
 		if (interval < 60) { return "" + interval + " m"; }
 		interval = interval/60;
@@ -136,9 +133,9 @@ public class QzFS {
 	}
 
 	private String getStats(int nNoBugTotal, int solved, 
-			boolean showMeanSolutionTime, double meanSolutionTime, String meanSolutionTimeUnits, 
-			boolean showMeanDifficulty, double meanDifficulty, String meanDifficultyUnits,
-			int meanSolutionAge, String meanSolutionAgeUnits, String oldestSolution) {
+			boolean showMeanSolutionTime, double meanSolutionTime, 
+			boolean showMeanDifficulty, double meanDifficulty,
+			int meanSolutionAge, String oldestSolution) {
 
 		int unsolved = nNoBugTotal - solved;
 
@@ -154,19 +151,19 @@ public class QzFS {
 			unsolved, 100.0 * unsolved / nNoBugTotal);
 		String statsBaseMST =
 		  String.format(
-		  "Mean solution time: %.1f %s\n" + 
+		  "Mean solution time: %s\n" + 
 		  "",
-		  meanSolutionTime, meanSolutionTimeUnits);
+		  this.secondsToHumanTime(meanSolutionTime));
 		String statsBaseMD =
 		  String.format(
-		  "Mean difficulty: %.1f %s\n" + 
+		  "Mean difficulty: %s\n" + 
 		  "",
-		  meanDifficulty, meanDifficultyUnits);
+		  this.secondsToHumanTime(meanDifficulty));
 		String statsBaseMSA =
 		  String.format(
-		  "Mean solution age: %d %s\n" + 
+		  "Mean solution age: %s\n" + 
 		  "",
-		  meanSolutionAge, meanSolutionAgeUnits);
+		  this.secondsToHumanTime(meanSolutionAge, REMOVE_DECIMAL));
 		String statsBaseOS =
 		  String.format(
 		  "Oldest solution: %s\n" + 
@@ -252,7 +249,7 @@ public class QzFS {
 		if (correct) {
 			String sAgeStuff = "never";
 			if (oldAge > 0) {
-				sAgeStuff = secondsToHumanTime(timeOfAnswer - oldAge);
+				sAgeStuff = secondsToHumanTime(timeOfAnswer - oldAge, REMOVE_DECIMAL);
 			}
 			return String.format("Correct.  (%s:%d-%d)\n", sAgeStuff, oldRating, newRating);
 		}
