@@ -7,12 +7,12 @@ import org.junit.Test;
 
 public class QzFSTest {
 	
-	private String sFileData = 
-	  "AQT	QAT	100	0	CO	\n" + 
-	  "IQS	QIS	100	0	CO	\n" + 
-	  "";
-
-	private QzFS qfs = new QzFS(sFileData);
+	private QzFS qfs = new QzFS("");
+	int[] ratings = {100, 100};
+	int[] ages = {0, 0};
+	int iStartTime = 0;
+	int iEndTime = 0;
+	int iAlgorithm = 0;
 
 	@Before
 	public void setUp() throws Exception {
@@ -48,7 +48,7 @@ public class QzFSTest {
 				"",
 		};
 		
-		assertEquals(sExpected, qfs.process(answers, responses, responseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, responseTimes));
 	}
 	
 	@Test
@@ -83,7 +83,7 @@ public class QzFSTest {
 				"qis",
 		};
 		
-		assertEquals(sExpected, qfs.process(answers, responses, responseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, responseTimes));
 	}
 	
 
@@ -117,7 +117,7 @@ public class QzFSTest {
 				"",
 		};
 		
-		assertEquals(sExpected, qfs.process(answers, responses, responseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, responseTimes));
 	}
 
 	@Test
@@ -152,6 +152,6 @@ public class QzFSTest {
 				"qat",
 		};
 		
-		assertEquals(sExpected, qfs.process(answers, responses, responseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, responseTimes));
 	}
 }

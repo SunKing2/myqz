@@ -1,12 +1,20 @@
 package myqz;
+import java.util.*;
 
 public class QzFS {
 	
 	public QzFS(String sFileData) {
 	}
 
-	public String process(String[] answers, String[] responses, double[] responseTimes) {
-		int oldScore = 100;
+	public String process(int startTime, int endTime, int algorithm, String[] answers, int[] ratings, int[] ages, String[] responses, double[] responseTimes) {
+
+		// sort by hardest first:
+		if (algorithm == 0 && ratings[1] > ratings[0]) {
+			// sort each array by hardest first (fake it)
+			Collections.reverse(Arrays.asList(answers));
+			int tmp = ratings[0]; ratings[0] = ratings[1]; ratings[1] = tmp;
+			tmp = ages[0]; ages[0] = ages[1]; ages[1] = tmp;
+		}
 		
 		int nCorrect = 0;
 		int nBugTotal = 1;
@@ -23,7 +31,7 @@ public class QzFS {
 		int meanSolutionAge = 17412;
 		String meanSolutionAgeUnits = "d";
 		String oldestSolution = "never";
-		String blaString = "";
+		String sYourAverageCongrats = "";
 		double totalTime = 0;
 		double totalCorrectTime = 0;
 		int totalRating = 0;
@@ -32,7 +40,7 @@ public class QzFS {
 			totalTime += responseTimes[i];
 			if (responses[i].toUpperCase().equals(answers[i].toUpperCase())) {
 				nCorrect++;
-				totalRating += this.evaluateScore(true, 100, responseTimes[i]);
+				totalRating += this.evaluateRating(true, ratings[i], responseTimes[i]);
 				totalCorrectTime += responseTimes[i];
 				showMeanDifficulty = false;
 				showMeanSolutionTime = true;
@@ -44,12 +52,12 @@ public class QzFS {
 			}
 		}
 
-		elapsedSeconds = (int) (totalTime + 1.5);
+		elapsedSeconds = (int) (totalTime + 1.0);
 		int ios = (int) (responseTimes[1] + .5);
 		oldestSolution = "" + ios + " s";
 
 		if (nCorrect > 0) {
-			blaString = String.format("You took on average %.1f seconds to answer correctly.\n" + 
+			sYourAverageCongrats = String.format("You took on average %.1f seconds to answer correctly.\n" + 
 					"Congratulations!\n", totalCorrectTime/nCorrect);
 		}
 		else {
@@ -67,14 +75,59 @@ public class QzFS {
 			meanSolutionAgeUnits = "d";
 			oldestSolution = "never";
 		}
+		
+		if (endTime > 0) {
+			meanSolutionAge = endTime - new Double((1.0 + ages[0] + ages[1]) /2.0).intValue();
+			String sMeanSolutionAge = this.secondsToHumanTime(meanSolutionAge);
+			meanSolutionAge = parseTimeNum(sMeanSolutionAge);
+			meanSolutionAgeUnits = parseTimeUnits(sMeanSolutionAge);
+			int iOldestSolution = endTime - ages[0];
+			int iOldestSolution2 = endTime - ages[1];
+			oldestSolution = this.secondsToHumanTime(Math.max(iOldestSolution, iOldestSolution2));
+			meanSolutionTime = 1.0 * totalRating / nCorrect;
+		}
 
-		return processLine(alphagram(answers[0]), answers[0], responses[0], 1, oldScore, responseTimes[0]) +
-		processLine(alphagram(answers[1]), answers[1], responses[1], 2, oldScore, responseTimes[1]) +
-		getSummaryHeader(nCorrect, nBugTotal, elapsedSeconds, blaString) + 
+		// TODO saying this question was posed at endTime is terribly unaccurate
+		// it will fail with further testing.
+		// maybe start time plus sum of previous response times would be better?
+		int timeOfResponse = endTime;
+		return processLine(alphagram(answers[0]), answers[0], timeOfResponse, responses[0], 1, ages[0], ratings[0], responseTimes[0]) +
+		processLine(alphagram(answers[1]), answers[1], timeOfResponse, responses[1], 2, ages[1], ratings[1], responseTimes[1]) +
+		getSummaryHeader(nCorrect, nBugTotal, elapsedSeconds, sYourAverageCongrats) + 
 		getStats(nNoBugTotal, nCorrect,
 				showMeanSolutionTime, meanSolutionTime, meanSolutionTimeUnits,
 				showMeanDifficulty, meanDifficulty, meanDifficultyUnits,
 				meanSolutionAge, meanSolutionAgeUnits, oldestSolution);
+	}
+	
+	private String parseTimeUnits(String sMeanSolutionAge) {
+		int len = sMeanSolutionAge.length();
+		String sub = sMeanSolutionAge.substring(len - 1);
+		return sub;
+	}
+
+	private int parseTimeNum(String sMeanSolutionAge) {
+		int len = sMeanSolutionAge.length();
+		String sub = sMeanSolutionAge.substring(0, len - 2);
+		int iReturn = -1;
+		try {
+			iReturn = Integer.parseInt(sub);
+		}
+		catch (Exception exc) {
+			System.out.println(exc + ": input string:" + sMeanSolutionAge);
+		}
+		return iReturn;
+	}
+
+	private String secondsToHumanTime(int seconds) {
+		int interval = seconds;
+		if (interval < 60) { return "" + interval + " s"; }
+		interval = interval/60;
+		if (interval < 60) { return "" + interval + " m"; }
+		interval = interval/60;
+		if (interval < 24) { return "" + interval + " h"; }
+		interval = interval/24;
+		return "" + interval + " d";
 	}
 	
 	private String alphagram(String words) {
@@ -164,18 +217,18 @@ public class QzFS {
 	[1] AQT: 
 	The correct answer is 'QAT'  (100-100)
 	*/
-	private String processLine(String question, String answer, String response, int questionNumber, int oldScore, double timeToSolve) {
+	private String processLine(String question, String answer, int timeOfResponse, String response, int questionNumber, int oldAge, int oldRating, double timeToSolve) {
 		boolean bRight = response.toUpperCase().equals(answer.toUpperCase());
-		int newScore = evaluateScore(bRight, 100, timeToSolve);
+		int newRating = evaluateRating(bRight, oldRating, timeToSolve);
 		String sRight =
 		  showQuestion(question, questionNumber) +
 		  response +
 		  "\n" + 
-		  showIfCorrectAndScore(bRight, answer, oldScore, newScore);
+		  showIfCorrectAndModifyRating(bRight, answer, timeOfResponse, oldAge, oldRating, newRating);
 		String sWrong = 
 		  showQuestion(question, questionNumber) +
 		  "\n" +
-		  showIfCorrectAndScore(bRight, answer, oldScore, newScore);
+		  showIfCorrectAndModifyRating(bRight, answer, timeOfResponse, oldAge, oldRating, newRating);
 		if (bRight) {
 			return sRight;
 		}
@@ -195,18 +248,22 @@ public class QzFS {
 	/*
 	The correct answer is 'QAT'  (100-100)
 	*/
-	private String showIfCorrectAndScore(boolean correct, String answer, int oldScore, int newScore) {
+	private String showIfCorrectAndModifyRating(boolean correct, String answer, int timeOfAnswer, int oldAge, int oldRating, int newRating) {
 		if (correct) {
-			return String.format("Correct.  (never:%d-%d)\n", oldScore, newScore);
+			String sAgeStuff = "never";
+			if (oldAge > 0) {
+				sAgeStuff = secondsToHumanTime(timeOfAnswer - oldAge);
+			}
+			return String.format("Correct.  (%s:%d-%d)\n", sAgeStuff, oldRating, newRating);
 		}
-		return String.format("The correct answer is '%s'  (%d-%d)\n", answer, oldScore, newScore);
+		return String.format("The correct answer is '%s'  (%d-%d)\n", answer, oldRating, newRating);
 	}
 	
-	private int evaluateScore(boolean correct, int oldScore, double timeToSolve) {
+	private int evaluateRating(boolean correct, int oldRating, double timeToSolve) {
 		if (correct == false) {
 			return 100;
 		}
-		return (int)((1+2* oldScore + timeToSolve) / 3);
+		return (int)((1 + 2.0 * oldRating + timeToSolve) / 3.0);
 	}
 
 }
