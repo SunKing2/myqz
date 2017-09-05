@@ -26,31 +26,32 @@ public class QzFSTest {
 		  "No more questions available.\n" + 
 		  "\n" + 
 		  "You answered 0 questions correctly of 1 (0.0%).\n" + 
-		  "Elapsed time: 0:00:08\n" + 
+		  "Elapsed time: 0:00:09\n" + 
 		  "\n" + 
 		  "Current statistics for this question set:\n" + 
 		  "Total: 2\n" + 
 		  "Solved: 0 (0%)\n" + 
 		  "Unsolved: 2 (100%)\n" + 
 		  "Mean difficulty: 100.0 s\n" + 
-		  "Mean solution age: 17413 d\n" + 
+		  "Mean solution age: 17414 d\n" + 
 		  "Oldest solution: never\n" + 
 		  "";
 
-		double[] responseTimes = {2.88888888888889, 4.88888888888889};
+		double[] netResponseTimes = {2.88888888888889, 5.88888888888889};
 		
 		String[] answers = {"QAT", "QIS"};
 		int[] ratings = {100, 100};
 		int[] ages = {0, 0};
-		int iStartTime = 1504537176;
-		int iEndTime = 1504537184;
+		int iStartTime = 1504577540;
+		int iEndTime = 1504577549;
+		int[] absoluteResponseTimes = {1504577543, 1504577549};
 		
 		String[] responses = {
 				"",
 				"",
 		};
 		
-		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, responseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
 	}
 	
 	@Test
@@ -59,39 +60,41 @@ public class QzFSTest {
 		  "[1] AQT: qat\n" + 
 		  "Correct.  (never:100-67)\n" + 
 		  "[2] IQS: qis\n" + 
-		  "Correct.  (never:100-67)\n" + 
+		  "Correct.  (never:100-68)\n" + 
 		  "No more questions available.\n" + 
 		  "\n" + 
 		  "You answered 2 questions correctly of 1 (200.0%).\n" + 
-		  "You took on average 1.6 seconds to answer correctly.\n" + 
+		  "You took on average 3.1 seconds to answer correctly.\n" + 
 		  "Congratulations!\n" + 
-		  "Elapsed time: 0:00:04\n" + 
+		  "Elapsed time: 0:00:07\n" + 
 		  "\n" + 
 		  "Current statistics for this question set:\n" + 
 		  "Total: 2\n" + 
 		  "Solved: 2 (100%)\n" + 
 		  "Unsolved: 0 (0%)\n" + 
-		  "Mean solution time: 67.0 s\n" + 
-		  "Mean solution age: 0 s\n" + 
-		  "Oldest solution: 1 s\n" + 
+		  "Mean solution time: 67.5 s\n" + 
+		  "Mean solution age: 2 s\n" + 
+		  "Oldest solution: 5 s\n" + 
 		  "";
 
-		double[] responseTimes = {2.55555555555556, 0.555555555555556};
+		double[] netResponseTimes = {1.55555555555556, 4.555555555555556};
 		
 		String[] answers = {"QAT", "QIS"};
 		int[] ratings = {100, 100};
 		int[] ages = {0, 0};
-		int iStartTime = 1504541061;
-		int iEndTime = 1504541065;
+		int iStartTime = 1504578195;
+		int iEndTime = 1504578202;
+		int[] absoluteResponseTimes = {1504578197, 1504578202};
 		
 		String[] responses = {
 				"qat",
 				"qis",
 		};
 		
-		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, responseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
 	}
 	
+
 	@Test
 	public void testReverseTwoOfTwoBlankAnswers() {
 		String sExpected = 
@@ -102,33 +105,35 @@ public class QzFSTest {
 		  "No more questions available.\n" + 
 		  "\n" + 
 		  "You answered 0 questions correctly of 1 (0.0%).\n" + 
-		  "Elapsed time: 0:00:07\n" + 
+		  "Elapsed time: 0:00:18\n" + 
 		  "\n" + 
 		  "Current statistics for this question set:\n" + 
 		  "Total: 2\n" + 
 		  "Solved: 0 (0%)\n" + 
 		  "Unsolved: 2 (100%)\n" + 
 		  "Mean difficulty: 100.0 s\n" + 
-		  "Mean solution age: 17413 d\n" + 
+		  "Mean solution age: 17414 d\n" + 
 		  "Oldest solution: never\n" + 
 		  "";
 
-		double[] responseTimes = {3.88888888888889, 2.88888888888889};
+		double[] netResponseTimes = {7.88888888888889, 9.88888888888889};
 		
 		String[] answers = {"QIS", "QAT"};
 		int[] ratings = {100, 100};
 		int[] ages = {0, 0};
-		int iStartTime = 1504548394;
-		int iEndTime = 1504548401;
+		int iStartTime = 1504582250;
+		int iEndTime = 1504582268;
+		int[] absoluteResponseTimes = {1504582258, 1504582268};
 		
 		String[] responses = {
 				"",
 				"",
 		};
 		
-		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, responseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
 	}
 
+	
 	@Test
 	public void testReversedTwoOfTwoCorrectAnswers() {
 		String sExpected = 
@@ -148,23 +153,24 @@ public class QzFSTest {
 		  "Solved: 2 (100%)\n" + 
 		  "Unsolved: 0 (0%)\n" + 
 		  "Mean solution time: 67.0 s\n" + 
-		  "Mean solution age: 0 s\n" + 
-		  "Oldest solution: 1 s\n" + 
+		  "Mean solution age: 1 s\n" + 
+		  "Oldest solution: 2 s\n" + 
 		  "";
 
-		double[] responseTimes = {2.55555555555556, 0.555555555555556};
+		double[] netResponseTimes = {1.55555555555556, 1.555555555555556};
 		
 		String[] answers = {"QIS", "QAT"};
 		int[] ratings = {100, 100};
 		int[] ages = {0, 0};
-		int iStartTime = 1504548920;
-		int iEndTime = 1504548924;
+		int iStartTime = 1504582464;
+		int iEndTime = 1504582468;
+		int[] absoluteResponseTimes = {1504582466, 1504582468};
 		
 		String[] responses = {
 				"qis",
 				"qat",
 		};
 		
-		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, responseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
 	}
 }

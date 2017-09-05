@@ -10,13 +10,10 @@ public class QzFS {
 	public static final boolean UNSEEN_FALSE = false;
 	public static final boolean UNSEEN_TRUE = true;
 	
-	public String process(int startTime, int endTime, int algorithm, String[] answers, int[] ratings, int[] ages, String[] responses, double[] responseTimes) {
+	public String process(int startTime, int endTime, int algorithm, String[] answers, int[] ratings, int[] ages, 
+			String[] responses, double[] netResponseTimes, int[] absoluteResponseTimes) {
 		
-		
-		
-		List<QzData> lis = new ArrayList<>();
-
-		QzFSStats2 qs = new QzFSStats2(lis, endTime);
+		QzFSStats2 qs = new QzFSStats2(endTime);
 
 
 		// sort by hardest first:
@@ -31,7 +28,7 @@ public class QzFS {
 		int gQCorrect = 0;
 		// You answered x questions correctly has a bug in qz.pl that shows 1 too few 
 		int promptQord = answers.length - 1;
-		long gTotalTime = 0;
+		double gTotalTime = 0.0;
 		
 		String sRet = "";
 		
@@ -39,16 +36,15 @@ public class QzFS {
 			sRet += showQuestion(QzFSUtils.alphagram(answers[i]), i + 1);
 			sRet += showResponse(responses[i]);
 			boolean correct = responses[i].equalsIgnoreCase(answers[i]);
-			// not sure if gTotalTime should be updated only if correct:
-			gTotalTime += ages[i];
 			int newAge = 0;
 			int newRating = 0;
 			if (correct) {
 				gQCorrect++;
-				newRating = this.evaluateRating(correct, ratings[i], responseTimes[i]);
-				String sAgeComment = this.getAgeComment(correct);
-				sRet += showCorrect(ratings[0], newRating, sAgeComment);
-				newAge = endTime - 1;
+				gTotalTime += netResponseTimes[i];
+				newRating = this.evaluateRating(correct, ratings[i], netResponseTimes[i]);
+				String sAgeComment = this.getAgeComment(correct, absoluteResponseTimes[i], ages[i]);
+				sRet += showCorrect(ratings[i], newRating, sAgeComment);
+				newAge = absoluteResponseTimes[i];
 			}
 			else {
 				newAge = ages[i];
@@ -57,12 +53,12 @@ public class QzFS {
 			}
 			qs.addQ(newRating, newAge, UNSEEN_FALSE);
 		}
-		String summary = qs.summary(gQCorrect, promptQord, gTotalTime, endTime, startTime);
+		String summary = qs.summary(gQCorrect, promptQord, gTotalTime, startTime);
 		String stats = qs.doListStats();
 		
 		sRet = sRet + 
-				//processLine(QzFSUtils.alphagram(answers[0]), answers[0], endTime, responses[0], 1, ages[0], ratings[0], responseTimes[0]) +
-				//processLine(QzFSUtils.alphagram(answers[1]), answers[1], endTime, responses[1], 2, ages[1], ratings[1], responseTimes[1]) +
+				//processLine(QzFSUtils.alphagram(answers[0]), answers[0], endTime, responses[0], 1, ages[0], ratings[0], netResponseTimes[0]) +
+				//processLine(QzFSUtils.alphagram(answers[1]), answers[1], endTime, responses[1], 2, ages[1], ratings[1], netResponseTimes[1]) +
 				"No more questions available.\n" +
 				summary +
 				"\nCurrent statistics for this question set:\n" +
@@ -71,8 +67,12 @@ public class QzFS {
 		return sRet;
 	}
 	
-	private String getAgeComment(boolean correct) {
-		return "never";
+	private String getAgeComment(boolean correct, int timeOfAnswer, int oldAge) {
+		String sReturn = "never";
+		if (oldAge > 0) {
+			sReturn = QzFSUtils.secondsToHumanTime(timeOfAnswer - oldAge, REMOVE_DECIMAL);
+		}
+		return sReturn;
 	}
 	
 	private int evaluateRating(boolean correct, int oldRating, double timeToSolve) {
@@ -108,7 +108,7 @@ public class QzFS {
 	
 
 //       ===================== ignore below this line ==============	
-	public String xprocess(int startTime, int endTime, int algorithm, String[] answers, int[] ratings, int[] ages, String[] responses, double[] responseTimes) {
+	public String xprocess(int startTime, int endTime, int algorithm, String[] answers, int[] ratings, int[] ages, String[] responses, double[] netResponseTimes) {
 
 		// sort by hardest first:
 		if (algorithm == 0 && ratings[1] > ratings[0]) {
@@ -139,11 +139,11 @@ public class QzFS {
 		int totalRating = 0;
 		
 		for (int i = 0; i < answers.length; i++) {
-			totalTime += responseTimes[i];
+			totalTime += netResponseTimes[i];
 			if (responses[i].toUpperCase().equals(answers[i].toUpperCase())) {
 				nCorrect++;
-				totalRating += this.evaluateRating(true, ratings[i], responseTimes[i]);
-				totalCorrectTime += responseTimes[i];
+				totalRating += this.evaluateRating(true, ratings[i], netResponseTimes[i]);
+				totalCorrectTime += netResponseTimes[i];
 				showMeanDifficulty = false;
 				showMeanSolutionTime = true;
 				
@@ -155,7 +155,7 @@ public class QzFS {
 		}
 
 		elapsedSeconds = (int) (totalTime + 1.0);
-		int ios = (int) (responseTimes[1] + .5);
+		int ios = (int) (netResponseTimes[1] + .5);
 		oldestSolution = "" + ios + " s";
 
 		if (nCorrect > 0) {
@@ -191,8 +191,8 @@ public class QzFS {
 		// it will fail with further testing.
 		// maybe start time plus sum of previous response times would be better?
 		int timeOfResponse = endTime;
-		return processLine(QzFSUtils.alphagram(answers[0]), answers[0], timeOfResponse, responses[0], 1, ages[0], ratings[0], responseTimes[0]) +
-		processLine(QzFSUtils.alphagram(answers[1]), answers[1], timeOfResponse, responses[1], 2, ages[1], ratings[1], responseTimes[1]) +
+		return processLine(QzFSUtils.alphagram(answers[0]), answers[0], timeOfResponse, responses[0], 1, ages[0], ratings[0], netResponseTimes[0]) +
+		processLine(QzFSUtils.alphagram(answers[1]), answers[1], timeOfResponse, responses[1], 2, ages[1], ratings[1], netResponseTimes[1]) +
 		getSummaryHeader(nCorrect, nBugTotal, elapsedSeconds, sYourAverageCongrats) + 
 		getStats(nNoBugTotal, nCorrect,
 				showMeanSolutionTime, meanSolutionTime,

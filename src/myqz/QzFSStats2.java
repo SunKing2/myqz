@@ -7,8 +7,7 @@ public class QzFSStats2 {
 
 	private int now;
 	
-	public QzFSStats2(List<QzData> data, int timeOfStats) {
-		this.gQData = data;
+	public QzFSStats2(int timeOfStats) {
 		this.now = timeOfStats;
 	}
 	
@@ -21,7 +20,7 @@ public class QzFSStats2 {
 	  int unseen = 0;
 	  int unsolved = 0;
 	  long ageSum = 0;
-	  //int now = QzFSUtils.time();
+	  
 	  int count = 0;
 	  int t = Integer.MAX_VALUE; // oldest
 
@@ -38,13 +37,6 @@ public class QzFSStats2 {
 	      else { solved++; totalRating += rating; }
 	    } 
 	  }
-	  System.out.println(gQData.get(0).age);
-	  System.out.println(gQData.get(1).age);
-	  System.out.println(t);
-	  System.out.println(ageSum);
-	  System.out.println((long)(0L + gQData.get(0).age + gQData.get(0).age));
-	  System.out.println((int)(1.0 * ageSum/count));
-	  System.out.println(now - (int)(1.0 * ageSum/count));
 
 	  int seen = solved + unsolved;
 	  sb.append(String.format( "Total: %d\n", unseen+seen));
@@ -61,14 +53,16 @@ public class QzFSStats2 {
 	     (100.0*(unsolved+unseen)+totalRating)/(seen+unseen)));
 	     
 	  if (count > 0) sb.append( "Mean solution age: " +
-	    QzFSUtils.secondsToHumanTime(now - (int)(1.0 * ageSum/count), true) + "\n");
+	    QzFSUtils.iSecondsToHumanTime((int)(now - (1.0 * ageSum/count))) + "\n");
 
 	  sb.append( "Oldest solution: " + (t > 0 ? QzFSUtils.secondsToHumanTime(now-t, true) : "never"));
 	  return sb.toString();
 	}
 
 	
-	public String summary (int gQCorrect, int promptQord, long gTotalTime, int now, int gSessionStart) {
+	public String summary (int gQCorrect, int promptQord, double gTotalTime, int gSessionStart) {
+		  System.out.println("tt:" + gTotalTime);
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format("\nYou answered %d question%s correctly of %d",
 		gQCorrect, gQCorrect == 1 ? "" : "s", promptQord));
@@ -99,11 +93,9 @@ public class QzFSStats2 {
 
 
 	public static void main(String[] args) {
-		List<QzData> lis = new ArrayList<>();
-		
 		boolean unseen = true;
 		
-		QzFSStats2 qs = new QzFSStats2(lis, QzFSUtils.time());
+		QzFSStats2 qs = new QzFSStats2(QzFSUtils.time());
 		for (int i = 0; i < 4; i++) {
 			qs.addQ(100, 0, unseen);
 			unseen = !unseen;
