@@ -13,17 +13,24 @@ public class QzFS {
 	public String process(int startTime, int endTime, int algorithm, String[] answers, int[] ratings, int[] ages, 
 			String[] responses, double[] netResponseTimes, int[] absoluteResponseTimes) {
 		
-		QzFSStats2 qs = new QzFSStats2(endTime);
+		QzFSStats2 statsObject = new QzFSStats2(endTime);
 
+		// 0 = show questions in order of hardest first
+		if (algorithm == 0) {
+			// sort, rating descending, 3 arrays in parallel by quickest dirtiest way possible
+			class DD {String answer; int rating; int age; // throwaway class
+			DD(String answer, int rating, int age) {this.answer=answer;this.rating=rating;this.age=age;} int getRating() {return rating;}}
+			List<DD> dds = new ArrayList<>();
+			for (int i = 0; i < answers.length; i++) {
+				dds.add(new DD(answers[i], ratings[i], ages[i]));
+			}
+			dds.sort(Comparator.comparingInt(DD::getRating).reversed());
+			for (int i = 0; i < dds.size(); i++) {
+				DD di = dds.get(i);
+				answers[i] = di.answer; ratings[i] = di.rating; ages[i] = di.age;
+			}
+		}
 
-		// sort by hardest first:
-		if (algorithm == 0 && ratings[1] > ratings[0]) {
-			// sort each array by hardest first (fake it)
-			Collections.reverse(Arrays.asList(answers));
-			int tmp = ratings[0]; ratings[0] = ratings[1]; ratings[1] = tmp;
-			tmp = ages[0]; ages[0] = ages[1]; ages[1] = tmp;
-		}		
-		
 		int gQCorrect = 0;
 		// You answered x questions correctly has a bug in qz.pl that shows 1 too few 
 		int promptQord = answers.length - 1;
@@ -32,7 +39,7 @@ public class QzFS {
 		String sRet = "";
 		
 		for (int i = 0; i < answers.length; i++) {
-			sRet += showQuestion(QzFSUtils.alphagram(answers[i]), i + 1);
+			sRet += showQuestion(QzFSUtils.firstWordAlphagram(answers[i]), i + 1);
 			sRet += showResponse(responses[i]);
 			boolean correct = responses[i].equalsIgnoreCase(answers[i]);
 			int newAge = 0;
@@ -40,8 +47,8 @@ public class QzFS {
 			if (correct) {
 				gQCorrect++;
 				gTotalTime += netResponseTimes[i];
-				newRating = this.evaluateRating(correct, ratings[i], netResponseTimes[i]);
-				String sAgeComment = this.getAgeComment(correct, absoluteResponseTimes[i], ages[i]);
+				newRating = getNewRating(correct, ratings[i], netResponseTimes[i]);
+				String sAgeComment = getAgeComment(correct, absoluteResponseTimes[i], ages[i]);
 				sRet += showCorrect(ratings[i], newRating, sAgeComment);
 				newAge = absoluteResponseTimes[i];
 			}
@@ -50,10 +57,10 @@ public class QzFS {
 				newRating = 100;
 				sRet += showIncorrect(answers[i], ratings[i], newRating);
 			}
-			qs.addQ(newRating, newAge, UNSEEN_FALSE);
+			statsObject.addQ(newRating, newAge, UNSEEN_FALSE);
 		}
-		String summary = qs.summary(gQCorrect, promptQord, gTotalTime, startTime);
-		String stats = qs.doListStats();
+		String summary = statsObject.summary(gQCorrect, promptQord, gTotalTime, startTime);
+		String stats = statsObject.doListStats();
 		
 		sRet = sRet +
 				"No more questions available.\n" +
@@ -72,7 +79,7 @@ public class QzFS {
 		return sReturn;
 	}
 	
-	private int evaluateRating(boolean correct, int oldRating, double timeToSolve) {
+	private int getNewRating(boolean correct, int oldRating, double timeToSolve) {
 		if (correct == false) {
 			return 100;
 		}

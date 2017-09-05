@@ -44,9 +44,9 @@ public class QzFSStats2 {
 	  
 
 	  sb.append(  "Solved: " + solved); 
-	  if (seen > 0) sb.append(String.format( " (%d%%)", (int)(0.5+100*solved/seen)));
+	  if (seen > 0) sb.append(String.format( " (%d%%)", (int)(0.5+100.0*solved/seen)));
 	  sb.append(  "\nUnsolved: " + unsolved); 
-	  if (seen > 0) sb.append(String.format( " (%d%%)", (int)(0.5+100*unsolved/seen)));
+	  if (seen > 0) sb.append(String.format( " (%d%%)", (int)(0.5+100.0*unsolved/seen)));
 	  sb.append(  "\n");
 	  if (solved > 0) sb.append(String.format( "Mean solution time: %.1f s\n", 1.0*totalRating/solved));
 	  if (unsolved > 0 || unseen > 0 )sb.append(String.format( "Mean difficulty: %.1f s\n",

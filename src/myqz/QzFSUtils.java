@@ -1,5 +1,7 @@
 package myqz;
 
+import java.util.Arrays;
+
 public class QzFSUtils {
 
 	public static String secondsToHumanTime(int seconds, boolean removeDecimal) {
@@ -29,9 +31,16 @@ public class QzFSUtils {
 		return "" + interval + " d";
 	}
 	
-	public static String alphagram(String words) {
-		if (words.equals("QAT")) return "AQT";
-		return "IQS";
+	public static String alphagram(String word) {
+		char[] cs = word.toCharArray();
+		Arrays.sort(cs);;
+		return new String(cs);
+	}
+	public static String firstWord(String words) {
+		return words.split(" ")[0];
+	}
+	public static String firstWordAlphagram(String words) {
+		return alphagram(firstWord(words));
 	}
 	public static String durationToString(int seconds) {
 		return String.format("%d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60));		
