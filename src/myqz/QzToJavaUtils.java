@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class QzUtils {
+public class QzToJavaUtils {
 	
 	// a generic method which reads a file as a string
 	// it's not really related specifically to this class

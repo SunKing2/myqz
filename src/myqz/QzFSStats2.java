@@ -61,8 +61,6 @@ public class QzFSStats2 {
 
 	
 	public String summary (int gQCorrect, int promptQord, double gTotalTime, int gSessionStart) {
-		  System.out.println("tt:" + gTotalTime);
-		
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format("\nYou answered %d question%s correctly of %d",
 		gQCorrect, gQCorrect == 1 ? "" : "s", promptQord));
@@ -78,7 +76,6 @@ public class QzFSStats2 {
 				(int)(elapsed/3600.0), 
 				(int)(elapsed/60.0) % 60, 
 				elapsed % 60));
-		//sb.append("\nCurrent statistics for this question set:\n");
 		return sb.toString();
 	}
 	

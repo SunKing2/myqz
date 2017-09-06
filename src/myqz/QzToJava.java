@@ -331,7 +331,7 @@ public class QzToJava {
 
 	private String getQuestionsAsString() {
 		List<Question> lis = new ArrayList<Question>(this.questions);
-		String text = QzUtils.questionsToString(lis);
+		String text = QzToJavaUtils.questionsToString(lis);
 		return text;
 	}
 

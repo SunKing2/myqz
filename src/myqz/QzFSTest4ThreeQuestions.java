@@ -141,4 +141,89 @@ public class QzFSTest4ThreeQuestions {
 		
 		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
 	}
+	@Test
+	public void testThreeLinesOfFirstCorrect() {
+		String sExpected = 
+		  "[1] IIKP: piki\n" + 
+		  "Correct.  (11 d:100-68)\n" + 
+		  "[2] AJNTU: \n" + 
+		  "The correct answer is 'JAUNT JUNTA'  (100-100)\n" + 
+		  "[3] ADIQ: \n" + 
+		  "The correct answer is 'QADI QAID'  (31-100)\n" + 
+		  "No more questions available.\n" + 
+		  "\n" + 
+		  "You answered 1 question correctly of 2 (50.0%).\n" + 
+		  "You took on average 3.4 seconds to answer correctly.\n" + 
+		  "Elapsed time: 0:00:08\n" + 
+		  "\n" + 
+		  "Current statistics for this question set:\n" + 
+		  "Total: 3\n" + 
+		  "Solved: 1 (33%)\n" + 
+		  "Unsolved: 2 (67%)\n" + 
+		  "Mean solution time: 68.0 s\n" + 
+		  "Mean difficulty: 89.3 s\n" + 
+		  "Mean solution age: 8 d\n" + 
+		  "Oldest solution: 15 d\n" + 
+		  "";
+
+		double[] netResponseTimes = {3.44444444444444, 2.88888888888889, 0.888888888888889};
+		
+		String[] answers = {"QADI QAID", "PIKI", "JAUNT JUNTA"};
+		int[] ratings = {31, 100, 100};
+		int[] ages = {1503314531, 1503606435, 1503748624};
+		int iStartTime = 1504628765;
+		int iEndTime = 1504628773;
+		int[] absoluteResponseTimes = {1504628769, 1504628772, 1504628773};
+		
+		String[] responses = {
+				"piki",
+				"",
+				""
+		};
+		
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
+	}
+	@Test
+	public void testThreeLinesOfFirstTwoCorrect() {
+		String sExpected = 
+		  "[1] IIKP: piki\n" + 
+		  "Correct.  (11 d:100-68)\n" + 
+		  "[2] AJNTU: jaunt junta\n" + 
+		  "Correct.  (10 d:100-69)\n" + 
+		  "[3] ADIQ: \n" + 
+		  "The correct answer is 'QADI QAID'  (31-100)\n" + 
+		  "No more questions available.\n" + 
+		  "\n" + 
+		  "You answered 2 questions correctly of 2 (100.0%).\n" + 
+		  "You took on average 6.1 seconds to answer correctly.\n" + 
+		  "Congratulations!\n" + 
+		  "Elapsed time: 0:00:17\n" + 
+		  "\n" + 
+		  "Current statistics for this question set:\n" + 
+		  "Total: 3\n" + 
+		  "Solved: 2 (67%)\n" + 
+		  "Unsolved: 1 (33%)\n" + 
+		  "Mean solution time: 68.5 s\n" + 
+		  "Mean difficulty: 79.0 s\n" + 
+		  "Mean solution age: 5 d\n" + 
+		  "Oldest solution: 15 d\n" + 
+		  "";
+
+		double[] netResponseTimes = {5.44444444444444, 6.66666666666667, 2.888888888888889};
+		
+		String[] answers = {"QADI QAID", "PIKI", "JAUNT JUNTA"};
+		int[] ratings = {31, 100, 100};
+		int[] ages = {1503314531, 1503606435, 1503748624};
+		int iStartTime = 1504629006;
+		int iEndTime = 1504629023;
+		int[] absoluteResponseTimes = {1504629012, 1504629020, 1504629023};
+		
+		String[] responses = {
+				"piki",
+				"jaunt junta",
+				""
+		};
+		
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
+	}
 }

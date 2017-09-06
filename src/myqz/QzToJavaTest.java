@@ -97,7 +97,7 @@ public class QzToJavaTest {
 		qz.doRunQuiz(null);
 		String sActualFileContents = "";
 		try {
-			sActualFileContents = QzUtils.readFile(QZ_OUTPUT_FILE);
+			sActualFileContents = QzToJavaUtils.readFile(QZ_OUTPUT_FILE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -110,7 +110,7 @@ public class QzToJavaTest {
 		qz.doRunQuiz(null);
 		String sActualFileContents = "";
 		try {
-			sActualFileContents = QzUtils.readFile(QZ_OUTPUT_FILE);
+			sActualFileContents = QzToJavaUtils.readFile(QZ_OUTPUT_FILE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -123,7 +123,7 @@ public class QzToJavaTest {
 		qz.doRunQuiz(null);
 		String sActualFileContents = "";
 		try {
-			sActualFileContents = QzUtils.readFile(QZ_OUTPUT_FILE);
+			sActualFileContents = QzToJavaUtils.readFile(QZ_OUTPUT_FILE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
