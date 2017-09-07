@@ -1,0 +1,26 @@
+===int iStartTime = 1504764628;===
+[1] AQT: qat
+===1504764630, ===
+Correct.  (never:100-67)
+[2] IQS: qis
+===1504764632, ===
+Correct.  (never:100-67)
+[3] AEU: shit
+===1504764634, ===
+`shit' is not correct.
+Press return to see the correct answer, or try again.
+[3] AEU: 
+You answered 2 questions correctly of 2 (100.0%).
+You took on average 1.6 seconds to answer correctly.
+Congratulations!
+Elapsed time: 0:00:06
+
+Current statistics for this question set:
+===int iEndTime = 1504764634;===
+Total: 3
+Solved: 2 (67%)
+Unsolved: 1 (33%)
+Mean solution time: 67.0 s
+Mean difficulty: 78.0 s
+Mean solution age: 5805 d
+Oldest solution: never

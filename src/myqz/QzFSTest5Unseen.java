@@ -1,8 +1,7 @@
 package myqz;
 
 import static org.junit.Assert.*;
-
-import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class QzFSTest5Unseen {
@@ -10,10 +9,11 @@ public class QzFSTest5Unseen {
 	private QzFS qfs = new QzFS("");
 	int iAlgorithm = 0;
 
-	@Before
-	public void setUp() throws Exception {
-	}
+	String[] answers = {"QAT", "QIS"};
+	int[] ratings = {100, 100};
+	int[] ages = {0, 0};
 
+	@Ignore
 	@Test
 	public void testTwoAnswersUnseenHalfRight() {
 		String sExpected = 
@@ -38,22 +38,11 @@ public class QzFSTest5Unseen {
 		  "Oldest solution: never\n" + 
 		  "";
 		
-		double[] netResponseTimes = {1.55555555555556, 1.88888888888889};
-
-		String[] answers = {"QAT", "QIS"};
-		int[] ratings = {100, 100};
-		int[] ages = {0, 0};
 		int iStartTime = 1504629289;
 		int iEndTime = 1504629293;
 		int[] absoluteResponseTimes = {1504629291, 1504629293};
+		String[] responses = {"qat", ""};
 		
-		String[] responses = {
-				"qat",
-				"",
-		};
-		
-		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
-	}
-	
-	
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, absoluteResponseTimes));
+	}	
 }

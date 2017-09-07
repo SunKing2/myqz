@@ -1,8 +1,6 @@
 package myqz;
 
 import static org.junit.Assert.assertEquals;
-
-import org.junit.Before;
 import org.junit.Test;
 
 public class QzFSTest4ThreeQuestions {
@@ -10,10 +8,10 @@ public class QzFSTest4ThreeQuestions {
 	private QzFS qfs = new QzFS("");
 	int iAlgorithm = 0;
 
-	@Before
-	public void setUp() throws Exception {
-	}
-
+	String[] answers = {"QADI QAID", "PIKI", "JAUNT JUNTA"};
+	int[] ratings = {31, 100, 100};
+	int[] ages = {1503314531, 1503606435, 1503748624};
+	
 	@Test
 	public void testThreeLinesOfNoCorrect() {
 		String sExpected = 
@@ -37,22 +35,12 @@ public class QzFSTest4ThreeQuestions {
 		  "Oldest solution: 14 d\n" + 
 		  "";
 
-		double[] netResponseTimes = {2.88888888888889, 1.88888888888889, 0.88888888888889};
-		
-		String[] answers = {"QADI QAID", "PIKI", "JAUNT JUNTA"};
-		int[] ratings = {31, 100, 100};
-		int[] ages = {1503314531, 1503606435, 1503748624};
 		int iStartTime = 1504586841;
 		int iEndTime = 1504586847;
-		int[] absoluteResponseTimes = {1504586844, 1504586846, 1504586847};
+		int[] absoluteResponseTimes = {1504586844, 1504586846, 1504586847};		
+		String[] responses = {"", "", ""};
 		
-		String[] responses = {
-				"",
-				"",
-				""
-		};
-		
-		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, absoluteResponseTimes));
 	}
 	
 	@Test
@@ -80,22 +68,12 @@ public class QzFSTest4ThreeQuestions {
 		  "Oldest solution: 11 s\n" + 
 		  "";
 
-		double[] netResponseTimes = {6.44444444444444, 2.66666666666667, 4.88888888888889};
-		
-		String[] answers = {"QADI QAID", "PIKI", "JAUNT JUNTA"};
-		int[] ratings = {31, 100, 100};
-		int[] ages = {1503314531, 1503606435, 1503748624};
 		int iStartTime = 1504591769;
 		int iEndTime = 1504591787;
 		int[] absoluteResponseTimes = {1504591776, 1504591780, 1504591786};
+		String[] responses = {"piki", "jaunt junta", "qadi qaid"};
 		
-		String[] responses = {
-				"piki",
-				"jaunt junta",
-				"qadi qaid"
-		};
-		
-		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, absoluteResponseTimes));
 	}
 
 	@Test
@@ -124,22 +102,12 @@ public class QzFSTest4ThreeQuestions {
 		  "Oldest solution: 11 d\n" + 
 		  "";
 
-		double[] netResponseTimes = {0.888888888888889, 4.66666666666667, 2.88888888888889};
-		
-		String[] answers = {"QADI QAID", "PIKI", "JAUNT JUNTA"};
-		int[] ratings = {31, 100, 100};
-		int[] ages = {1503314531, 1503606435, 1503748624};
 		int iStartTime = 1504592071;
 		int iEndTime = 1504592082;
 		int[] absoluteResponseTimes = {1504592072, 1504592078, 1504592082};
+		String[] responses = {"", "jaunt junta", "qadi qaid"};
 		
-		String[] responses = {
-				"",
-				"jaunt junta",
-				"qadi qaid"
-		};
-		
-		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, absoluteResponseTimes));
 	}
 	@Test
 	public void testThreeLinesOfFirstCorrect() {
@@ -166,22 +134,12 @@ public class QzFSTest4ThreeQuestions {
 		  "Oldest solution: 15 d\n" + 
 		  "";
 
-		double[] netResponseTimes = {3.44444444444444, 2.88888888888889, 0.888888888888889};
-		
-		String[] answers = {"QADI QAID", "PIKI", "JAUNT JUNTA"};
-		int[] ratings = {31, 100, 100};
-		int[] ages = {1503314531, 1503606435, 1503748624};
 		int iStartTime = 1504628765;
 		int iEndTime = 1504628773;
 		int[] absoluteResponseTimes = {1504628769, 1504628772, 1504628773};
+		String[] responses = {"piki", "", ""};
 		
-		String[] responses = {
-				"piki",
-				"",
-				""
-		};
-		
-		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, absoluteResponseTimes));
 	}
 	@Test
 	public void testThreeLinesOfFirstTwoCorrect() {
@@ -209,21 +167,11 @@ public class QzFSTest4ThreeQuestions {
 		  "Oldest solution: 15 d\n" + 
 		  "";
 
-		double[] netResponseTimes = {5.44444444444444, 6.66666666666667, 2.888888888888889};
-		
-		String[] answers = {"QADI QAID", "PIKI", "JAUNT JUNTA"};
-		int[] ratings = {31, 100, 100};
-		int[] ages = {1503314531, 1503606435, 1503748624};
 		int iStartTime = 1504629006;
 		int iEndTime = 1504629023;
 		int[] absoluteResponseTimes = {1504629012, 1504629020, 1504629023};
+		String[] responses = {"piki", "jaunt junta", ""};
 		
-		String[] responses = {
-				"piki",
-				"jaunt junta",
-				""
-		};
-		
-		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, netResponseTimes, absoluteResponseTimes));
+		assertEquals(sExpected, qfs.process(iStartTime, iEndTime, iAlgorithm, answers, ratings, ages, responses, absoluteResponseTimes));
 	}
 }

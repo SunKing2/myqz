@@ -1,0 +1,9 @@
+cp mystuff.qz.bak mystuff.qz
+sleep 2
+
+while read input
+do sleep 2
+   echo "$input"
+done < inputdata | perl qztmp.pl -phardest mystuff.qz > tmp
+cat tmp | egrep -v '^==' && cat tmp | egrep '^==='
+

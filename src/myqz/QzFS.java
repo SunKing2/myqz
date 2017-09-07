@@ -11,24 +11,15 @@ public class QzFS {
 	public static final boolean UNSEEN_TRUE = true;
 	
 	public String process(int startTime, int endTime, int algorithm, String[] answers, int[] ratings, int[] ages, 
-			String[] responses, double[] netResponseTimes, int[] absoluteResponseTimes) {
+			String[] responses, int[] absoluteResponseTimes) {
 		
-		QzFSStats2 statsObject = new QzFSStats2(endTime);
+		double[] netResponseTimes = this.generateNetResponseTimes(absoluteResponseTimes, startTime, responses);
+
+		QzFSStats statsObject = new QzFSStats(endTime);
 
 		// 0 = show questions in order of hardest first
 		if (algorithm == 0) {
-			// sort, rating descending, 3 arrays in parallel by quickest dirtiest way possible
-			class DD {String answer; int rating; int age; // throwaway class
-			DD(String answer, int rating, int age) {this.answer=answer;this.rating=rating;this.age=age;} int getRating() {return rating;}}
-			List<DD> dds = new ArrayList<>();
-			for (int i = 0; i < answers.length; i++) {
-				dds.add(new DD(answers[i], ratings[i], ages[i]));
-			}
-			dds.sort(Comparator.comparingInt(DD::getRating).reversed());
-			for (int i = 0; i < dds.size(); i++) {
-				DD di = dds.get(i);
-				answers[i] = di.answer; ratings[i] = di.rating; ages[i] = di.age;
-			}
+			sortThreeArraysByHardest(answers, ratings, ages);
 		}
 
 		int gQCorrect = 0;
@@ -39,15 +30,17 @@ public class QzFS {
 		String sRet = "";
 		
 		for (int i = 0; i < answers.length; i++) {
+			
 			sRet += showQuestion(QzFSUtils.firstWordAlphagram(answers[i]), i + 1);
 			sRet += showResponse(responses[i]);
+			
 			boolean correct = responses[i].equalsIgnoreCase(answers[i]);
 			int newAge = 0;
 			int newRating = 0;
 			if (correct) {
 				gQCorrect++;
 				gTotalTime += netResponseTimes[i];
-				newRating = getNewRating(correct, ratings[i], netResponseTimes[i]);
+				newRating = getNewRatingCorrect(ratings[i], netResponseTimes[i]);
 				String sAgeComment = getAgeComment(correct, absoluteResponseTimes[i], ages[i]);
 				sRet += showCorrect(ratings[i], newRating, sAgeComment);
 				newAge = absoluteResponseTimes[i];
@@ -70,6 +63,21 @@ public class QzFS {
 				"\n";
 		return sRet;
 	}
+
+	private void sortThreeArraysByHardest(String[] answers, int[] ratings, int[] ages) {
+		// sort, rating descending, 3 arrays in parallel by quickest dirtiest way possible
+		class DD {String answer; int rating; int age; // throwaway class
+		DD(String answer, int rating, int age) {this.answer=answer;this.rating=rating;this.age=age;} int getRating() {return rating;}}
+		List<DD> dds = new ArrayList<>();
+		for (int i = 0; i < answers.length; i++) {
+			dds.add(new DD(answers[i], ratings[i], ages[i]));
+		}
+		dds.sort(Comparator.comparingInt(DD::getRating).reversed());
+		for (int i = 0; i < dds.size(); i++) {
+			DD di = dds.get(i);
+			answers[i] = di.answer; ratings[i] = di.rating; ages[i] = di.age;
+		}
+	}
 	
 	private String getAgeComment(boolean correct, int timeOfAnswer, int oldAge) {
 		String sReturn = "never";
@@ -79,11 +87,23 @@ public class QzFS {
 		return sReturn;
 	}
 	
-	private int getNewRating(boolean correct, int oldRating, double timeToSolve) {
-		if (correct == false) {
-			return 100;
-		}
+	private int getNewRatingCorrect(int oldRating, double timeToSolve) {
 		return (int)((1 + 2.0 * oldRating + timeToSolve) / 3.0);
+	}
+	
+	private double[] generateNetResponseTimes(int[] absoluteResponseTimes, int startTime, String[] responses) {
+		int len = absoluteResponseTimes.length;
+		double [] netResponseTimes = new double[len];
+		int promptStart = startTime;
+		for (int i = 0; i < len; i++) {
+			if (i != 0) {
+				promptStart = absoluteResponseTimes[i-1];
+			}
+			// $ttt - $prompt'start - (length $_)/$config'typing_speed;
+			netResponseTimes[i] = 
+			0.0 + absoluteResponseTimes[i] - promptStart - responses[i].length()/9.0 -.11;
+		}
+		return netResponseTimes;
 	}
 	
 	/*

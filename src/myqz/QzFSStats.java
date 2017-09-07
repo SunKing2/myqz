@@ -1,13 +1,13 @@
 package myqz;
 import java.util.*;
 
-public class QzFSStats2 {
+public class QzFSStats {
 
 	private List<QzData> gQData = new ArrayList<>(); 
 
 	private int now;
 	
-	public QzFSStats2(int timeOfStats) {
+	public QzFSStats(int timeOfStats) {
 		this.now = timeOfStats;
 	}
 	
@@ -87,12 +87,18 @@ public class QzFSStats2 {
 		gQData.add(d);
 		return gQData.size();
 	}
-
+	
+	
+	class QzData {
+		public int rating;
+		public int age;
+		boolean unseen;
+	}
 
 	public static void main(String[] args) {
 		boolean unseen = true;
 		
-		QzFSStats2 qs = new QzFSStats2(QzFSUtils.time());
+		QzFSStats qs = new QzFSStats(QzFSUtils.time());
 		for (int i = 0; i < 4; i++) {
 			qs.addQ(100, 0, unseen);
 			unseen = !unseen;
