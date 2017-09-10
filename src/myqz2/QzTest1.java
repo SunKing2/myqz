@@ -68,7 +68,6 @@ public class QzTest1 {
 		}
 	}
 	
-	@Ignore
 	@Test
 	public void testRunQzProgram3() throws IOException {
 		
@@ -80,6 +79,9 @@ public class QzTest1 {
 		// run qz multiple times, once for each line here:
 		String[][] arrResponses = {
 				{"", ""},
+				{"qis", "qat"},
+				{"qis", ""}, 
+
 		};
 		int i = 0;
 		for (String[] sResponse: arrResponses)

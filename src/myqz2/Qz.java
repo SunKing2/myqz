@@ -37,16 +37,25 @@ public class Qz {
 		int i = 0;
 		for (String response : responses) {
 			QzQuestion q = questions.get(i);
+			int newRating = q.rating;
 			sReturn += String.format("[%d] %s: %s\n", i + 1, q.question, response);
 			boolean bCorrect = response.equalsIgnoreCase(q.answer);
 			String sOldRatingString = q.unseen ? "new" : q.srating;
 			if (bCorrect) {
-				sReturn += "Correct.  (never:new-1)\n";
+				String sAgeStuff = "never";
+				if (q.age != 0) sAgeStuff = "6 d";
+				newRating = q.unseen ? 1 : (int) (q.rating * .667);
+				sReturn += String.format("Correct.  (%s:%s-%d)\n", sAgeStuff, sOldRatingString, newRating);
 				stats.iTotalCorrect++;
+				// TODO not functional
+				q.age = System.currentTimeMillis()/1000;
 			} 
 			else {
 				sReturn += String.format("The correct answer is '%s'  (%s-%s)\n", q.answer, sOldRatingString, "100");
 			}
+			// TODO not functional, modifies param:
+			q.unseen = false;
+			q.rating = newRating;
 			i++;
 		}
 		return sReturn;

@@ -5,100 +5,95 @@ import java.util.*;
 public class QzStats {
 	public int iTotalCorrect = 0;
 	public int iTotalAsked = 0;
+	private QzTemplate template = new QzTemplate();
 
 	public String sreport = "";
-	public String process(List<QzQuestion>lisQuestions, String[] responses) {
-		String sResult = "";
-
-		iTotalAsked = lisQuestions.size();
-		
-		sResult += "No more questions available.\n" + "\n";
-		
-		sResult += String.format("You answered %d question%s correctly of %d (%.1f%%).\n", iTotalCorrect,
-						iTotalCorrect == 1 ? "" : "s", iTotalAsked - 1, 100.0 * iTotalCorrect / (iTotalAsked - 1));
-
-		if (iTotalCorrect > 0) {
-			sResult += "You took on average -0.4 seconds to answer correctly.\n";
-			if (iTotalCorrect == 1 && iTotalAsked == 3) {
-				
-			}
-			else {
-				sResult += "Congratulations!\n";
-			}
+	public String process(List<QzQuestion>lisQuestions, String[] responses) {		
+			
+		// start of jc code
+		int solved = 0;
+		int totalRating = 0;
+		int unseen = 0;
+		int unsolved = 0;
+		int age_sum = 0;
+		int now = (int)System.currentTimeMillis()/1000;
+		int count = 0;  // lvb says this is not needed, should use size instead
+			
+		// calculate stats
+		{
+		  for (int qIndex = 0; qIndex < lisQuestions.size(); qIndex++) {
+		    age_sum += lisQuestions.get(qIndex).age;
+		    count++;
+		    int rating = lisQuestions.get(qIndex).rating;
+		    if (lisQuestions.get(qIndex).unseen) { unseen++; }
+		    else if (rating == 100) { unsolved++; }
+		    else { solved++; totalRating += rating; }
+		  } 
 		}
-
-		sResult += "Elapsed time: 0:00:00\n" + "\n";
-
-		sResult += String.format("Current statistics for this question set:\n" + "Total: %d\n", iTotalAsked);
-
-		sResult += String.format("Solved: %d (%d%%)\n", iTotalCorrect, (int)Math.round(100.0 * iTotalCorrect / iTotalAsked));
-
-		sResult += String.format("Unsolved: %d (%d%%)\n", (iTotalAsked - iTotalCorrect),
-				(int)Math.round(100.0 * (iTotalAsked - iTotalCorrect) / iTotalAsked));
-
-		if (iTotalCorrect > 0)
-			sResult += "Mean solution time: 1.0 s\n";
-
-		// show only if there any unsolved or any unseen
-		if (iTotalCorrect < iTotalAsked)
-			sResult += "Mean difficulty: " + getMeanDifficulty(lisQuestions, responses, iTotalCorrect) + "\n";
-
-		long iMeanSolutionAge = getMeanSolutionAge(iTotalAsked);
-
-		sResult += String.format("Mean solution age: %s\n", QzUtils.secondsToHuman(iMeanSolutionAge));
+		// print report
+		int seen = solved + unsolved;
+		String total = "" + (unseen+seen);
+		boolean bPrintUnseen = unseen > 0? true: false;
+		String unseenpercent = "" + (0.5+100*(unseen/(seen+unseen)));
+		boolean bPrintSolvedPercent = seen > 0 ? true: false; 
+		String solvedpercent = bPrintSolvedPercent? "" + (int)(0.5+100*solved/seen) : "n/a";
+		boolean bPrintUnSolvedPercent = seen > 0 ? true: false; 
+		String unsolvedpercent = bPrintUnSolvedPercent? "" + (int)(0.5+100*unsolved/seen) : "n/a";
+		boolean bPrintMeanSolutionTime = solved > 0? true: false;
+		String meansolutiontime = bPrintMeanSolutionTime? "" + (totalRating/solved) : "n/a";
+		boolean bPrintMeanDifficulty = (unsolved > 0 || unseen > 0) ? true: false;
+		String meandifficulty = "" + ((100*(unsolved+unseen)+totalRating)/(seen+unseen));
+		boolean bPrintMeanSolutionAge = count > 0? true: false;
+		String meansolutionage = "" + ((int)(now - 1.0 * age_sum/count));
+		long t = 0;
+		for (QzQuestion quest: lisQuestions) {
+			if (quest.age < t) t = quest.age;
+		}
+		String oldestsolution = "" + (t > 0? (now -t) : "never");
+		// end of jc code
 		
-		sResult += "Oldest solution: ";
-
-		sResult += getOldestSolutionString(iTotalAsked);
+		// prepare vars for sub s lvb code
+		int gQCorrect = 2; // fake
+		int promptQord = 2; // fake
+		int gTotalTime = 0; // fake
+		long time = System.currentTimeMillis() / 1000; // maybe put this as first thing in method
+		long gSessionStart = time;  // fake
+		// begin jc code sub S
+		String questionplural = gQCorrect == 1 ? "" : "s";
+		boolean bShowAnsweredPercent = promptQord > 0;
+		String answeredpercent = "" + (100.0 * gQCorrect / promptQord);
+		boolean bPrintYouTookAnAverage = gQCorrect > 0;
 		
-		sResult += "\n";
+		String youtookonaverage = gQCorrect > 0 ? "" +  (gTotalTime / gQCorrect) : "";
+		boolean bPrintCongratulations = promptQord > 0 && 1.0 * gQCorrect / promptQord > 0.9;
+		long elapsed = time - gSessionStart;
+		String elapsedtime = String.format("%d:%02d:%02d", 
+		    (int)(elapsed/3600.0), (int)(elapsed/60.0) % 60, elapsed % 60);
+		// end jc code sub S
 
+		template.addReplacement("answered", "" + gQCorrect);
+		template.addReplacement("questionplural", questionplural);
+		template.setStringVisibility(3, bShowAnsweredPercent);
+		template.addReplacement("answeredpercent", answeredpercent);
+		template.addReplacement("youtookonaverage", youtookonaverage);
+		template.addReplacement("elapsedtimes", elapsedtime);
+		template.addReplacement("totalm1", "" + promptQord);
+		template.setStringVisibility(5, bPrintYouTookAnAverage);
+		template.setStringVisibility(6, bPrintCongratulations);
+		template.setStringVisibility(1, bPrintUnseen);
+		template.setStringVisibility(12, bPrintUnseen);
+		template.addReplacement("solved", "" + solved);
+		template.addReplacement("solvedpercent", "" + solvedpercent);
+		template.addReplacement("unsolved", "" + unsolved);
+		template.addReplacement("unsolvedpercent", "" + unsolvedpercent);
+		template.setStringVisibility(15, bPrintMeanDifficulty);
+		template.setStringVisibility(16, bPrintMeanSolutionTime);
+		template.addReplacement("meansolutiontime", meansolutiontime);
+		template.addReplacement("meansolutionage", meansolutionage);
+		template.addReplacement(oldestsolution, oldestsolution);
+			
+		String sResult = "";
+		sResult = template.getResults();
 		return sResult;
 	}
-
-	private String getOldestSolutionString(int iTotalAsked) {
-		String sOldestSolutionString;
-		if (iTotalCorrect < 2) {
-			sOldestSolutionString = "never";
-		} 
-		else if (iTotalCorrect == 2 && iTotalAsked == 3) {
-			sOldestSolutionString = "never";
-		}
-		else {
-			sOldestSolutionString = QzUtils.secondsToHuman(0);
-		}
-		return sOldestSolutionString;
-	}
-
-	private long getMeanSolutionAge(int iTotalAsked) {
-		long iMeanSolutionAge;
-		iMeanSolutionAge = 17417 * 86400;
-		if (iTotalCorrect > 0) {
-			iMeanSolutionAge = 0;
-			if (iTotalCorrect == 1) {
-				iMeanSolutionAge = 8708 * 86400;
-				if (iTotalAsked == 3) {
-					iMeanSolutionAge = 11611 * 86400;
-				}
-			}
-			if (iTotalCorrect == 2 && iTotalAsked == 3) {
-				iMeanSolutionAge = 5805 * 86400;
-			}
-		}
-		return iMeanSolutionAge;
-	}
-	private String getMeanDifficulty(List<QzQuestion> questions, String[] responses, int iTotalCorrect) {
-		String sReturn = "100.0 s";
-		if (iTotalCorrect == 1) {
-			sReturn = "50.5 s";
-			if (questions.size() == 3) {
-				sReturn = "67.0 s";
-			}
-		}
-		if (questions.size() > 2) {
-			if (iTotalCorrect == 2) sReturn = "34.0 s";
-		}
-		return sReturn;
-	}
-
 }
