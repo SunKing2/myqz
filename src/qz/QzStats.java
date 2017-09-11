@@ -1,14 +1,11 @@
-package myqz2;
+package qz;
 
 import java.util.*;
 
 public class QzStats {
-	public int iTotalCorrect = 0;
-	public int iTotalAsked = 0;
 	private QzTemplate template = new QzTemplate();
 
-	public String sreport = "";
-	public String process(List<QzQuestion>lisQuestions, String[] responses) {		
+	public String process(int iTotalAsked, int iTotalCorrect, List<QzQuestion>lisQuestions, String[] responses) {		
 			
 		// start of jc code
 		int solved = 0;

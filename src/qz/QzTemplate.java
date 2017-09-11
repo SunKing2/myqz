@@ -1,4 +1,4 @@
-package myqz2;
+package qz;
 
 public class QzTemplate extends TemplateEngine {
 	private String[] stringsToAdd = {
@@ -25,6 +25,8 @@ public class QzTemplate extends TemplateEngine {
 			"Oldest solution: ${oldestsolution}\n" , 
 			""
 			};
+	
+	// this is a static block, all code gets executed during class instantiation:
 	{
 		createTemplateUsingStringsArray(stringsToAdd);
 
@@ -58,5 +60,4 @@ public class QzTemplate extends TemplateEngine {
 			};
 		addReplacements(replacements);
 	}	
-	
 }

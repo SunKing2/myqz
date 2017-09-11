@@ -1,0 +1,23 @@
+===int iStartTime = 1505146331;===
+[1] AQT: qat
+===1505146331, ===
+Correct.  (never:new-1)
+[2] IQS: qis
+===1505146331, ===
+Correct.  (never:new-1)
+No more questions available.
+
+You answered 2 questions correctly of 1 (200.0%).
+You took on average -0.4 seconds to answer correctly.
+Congratulations!
+Elapsed time: 0:00:00
+
+Current statistics for this question set:
+===int[] absoluteResponseTimes = {1505146331,1505146331};===
+===int iEndTime = 1505146331;===
+Total: 2
+Solved: 2 (100%)
+Unsolved: 0 (0%)
+Mean solution time: 1.0 s
+Mean solution age: 0 s
+Oldest solution: 0 s

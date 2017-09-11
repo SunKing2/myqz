@@ -1,4 +1,4 @@
-package myqz2;
+package qz;
 
 import static org.junit.Assert.*;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import org.junit.Test;
 
 /*
  * Uses TDD to reverse engineer qz.pl (John Chew).
- * These test run qz.pl (many many times) to generated "expected" strings.  
+ * Each of these many tests run qz.pl to generated "expected" strings.  
  * It captures stdout into a java String, as "expected" results for junit.
  * These tests generate 2 files to be used for each run of qz.pl:
  * 1. a .qz file (which, of course, every qz.pl run needs at least one)
@@ -119,9 +119,6 @@ public class QzTest1 {
 		}
 	}
 	
-	
-	
-//  ======================  not here yet
 	@Test
 	public void testRunQzProgram13() throws IOException {
 		
@@ -154,10 +151,26 @@ public class QzTest1 {
 		for (String s: responses) {	
 			responsesAsString += s + "\n";
 		}
-		String expected = TestStaticMethods.runQz(sData, responsesAsString);
+		String expected = runQz(sData, responsesAsString);
 		String actual = qz.process(sData, responses);
 		
 		assertEquals(message, expected, actual);
+		
+		// now test to see if simulated output file gets created properly
+		String sExpectedOutputFile = QzUtils.readFileAsString("maketestcases/mystuff.qz");
+		assertEquals("file contents:" + message, sExpectedOutputFile, qz.questionsToString());
+		
 	}
+	public static String runQz(String data, String responses) throws IOException{
+		RunPerl rp = new RunPerl();
+		rp.createInputDataFileForPerl("maketestcases/mystuff.qz", data);
+		rp.createInputDataFileForPerl("maketestcases/inputdata", responses);
+		
+		rp.runProgram("maketestcases/runqzredirectedinput.sh", "", "", "");
+		String actual = rp.getOutput();
+		
+		return actual;
+	}
+
 	// don't put any tests here
 }

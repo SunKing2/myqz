@@ -1,4 +1,4 @@
-package myqz2;
+package qz;
 
 import static org.junit.Assert.*;
 
@@ -11,25 +11,9 @@ import org.junit.Test;
 public class RunPerlTest {
 
 	private RunPerl rp = new RunPerl();
-	private static final String perlProgramHelloAndWorld = "maketestcases/mytest.pl";
-	private static final String perlProgramCowabungaAFile = "maketestcases/cowabunga-file.pl";
 	private static final String shellProgramQz = "maketestcases/runqzredirectedinput.sh";
-	private static final String temporaryFileName = "runperltest.tmp";
+	private static final String temporaryFileName = "maketestcases/runperltest.tmp";
 	private static final String qzInputFileName = "maketestcases/mystuff.qz";
-	
-	@Test
-	public void testRunPerlHasOutput() {
-		String sActual = "";
-		
-		try {
-			rp.runPerl(perlProgramHelloAndWorld);
-			sActual = rp.getOutput();
-		} 
-		catch (IOException exc) {
-			System.out.println("cot:" + exc);
-		}
-		assertEquals("hello\nworld\n", sActual);
-	}
 	
 	@Test
 	public void testCreateInputDataFileForPerl() throws IOException {
@@ -38,18 +22,6 @@ public class RunPerlTest {
 		rp.createInputDataFileForPerl(sFileName, sData);
 		String sActual = readFile(sFileName);
 		assertEquals(sData, sActual);
-	}
-	
-	@Test
-	public void testrunPerlCowabungaProgram() throws IOException {
-		String sData = "nice\nday\neh?";
-		rp.createInputDataFileForPerl(temporaryFileName, sData);
-		
-		rp.runPerl(perlProgramCowabungaAFile);
-		String actual = rp.getOutput();
-		
-		String expected = "cowabunga nice\ncowabunga day\ncowabunga eh?\n";
-		assertEquals(expected, actual);
 	}
 	
 	@Test

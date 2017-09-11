@@ -1,4 +1,4 @@
-package myqz2;
+package qz;
 
 import java.io.*;
 
