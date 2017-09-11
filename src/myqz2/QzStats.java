@@ -15,21 +15,28 @@ public class QzStats {
 		int totalRating = 0;
 		int unseen = 0;
 		int unsolved = 0;
-		int age_sum = 0;
-		int now = (int)System.currentTimeMillis()/1000;
+		long age_sum = 0;
+		long now = (long)System.currentTimeMillis()/1000;
+		System.out.println("millis:" + System.currentTimeMillis());
+		System.out.println("now set to:" + now);
 		int count = 0;  // lvb says this is not needed, should use size instead
 			
 		// calculate stats
 		{
 		  for (int qIndex = 0; qIndex < lisQuestions.size(); qIndex++) {
+			System.out.println("adding age:" + lisQuestions.get(qIndex).age);
 		    age_sum += lisQuestions.get(qIndex).age;
 		    count++;
+		    System.out.println("this q, rating=" + lisQuestions.get(qIndex).rating);
+		    System.out.println("this q, unseen=" + lisQuestions.get(qIndex).unseen);
 		    int rating = lisQuestions.get(qIndex).rating;
 		    if (lisQuestions.get(qIndex).unseen) { unseen++; }
 		    else if (rating == 100) { unsolved++; }
 		    else { solved++; totalRating += rating; }
 		  } 
 		}
+		System.out.println("age_sum:" + age_sum);
+		System.out.println("count:" + count);
 		// print report
 		int seen = solved + unsolved;
 		String total = "" + (unseen+seen);
@@ -40,21 +47,30 @@ public class QzStats {
 		boolean bPrintUnSolvedPercent = seen > 0 ? true: false; 
 		String unsolvedpercent = bPrintUnSolvedPercent? "" + (int)(0.5+100*unsolved/seen) : "n/a";
 		boolean bPrintMeanSolutionTime = solved > 0? true: false;
-		String meansolutiontime = bPrintMeanSolutionTime? "" + (totalRating/solved) : "n/a";
+		String meansolutiontime = bPrintMeanSolutionTime? String.format("%.1f s", 1.0 * totalRating/solved) : "n/a";
 		boolean bPrintMeanDifficulty = (unsolved > 0 || unseen > 0) ? true: false;
-		String meandifficulty = "" + ((100*(unsolved+unseen)+totalRating)/(seen+unseen));
-		boolean bPrintMeanSolutionAge = count > 0? true: false;
-		String meansolutionage = "" + ((int)(now - 1.0 * age_sum/count));
-		long t = 0;
+		String meandifficulty = String.format("%.1f s", (100.0*(unsolved+unseen)+totalRating)/(seen+unseen));
+		boolean bPrintMeanSolutionAge = count > 0 ? true: false;
+		System.out.println("age_sum:" + age_sum);
+		System.out.println("count:" + count);
+		System.out.println("now:" + now);
+		System.out.println("bla:" + 1.0 * age_sum/count);
+		
+		String meansolutionage = QzUtils.secondsToHuman((int)(now - 1.0 * age_sum/count));
+		long t = Long.MAX_VALUE;
 		for (QzQuestion quest: lisQuestions) {
+			System.out.println("quest.age:" + quest.age);
 			if (quest.age < t) t = quest.age;
 		}
-		String oldestsolution = "" + (t > 0? (now -t) : "never");
+		System.out.println("t=" + t);
+		String oldestsolution = "" + (t > 0 ? QzUtils.secondsToHuman(now - t) : "never");
+		System.out.println("oldestsolution" + oldestsolution);
 		// end of jc code
 		
 		// prepare vars for sub s lvb code
-		int gQCorrect = 2; // fake
-		int promptQord = 2; // fake
+		int gQCorrect = iTotalCorrect;
+		// yes just before calling Sub S, qz.pl does promptQord--;  and yup it creates bad report
+		int promptQord = iTotalAsked - 1;
 		int gTotalTime = 0; // fake
 		long time = System.currentTimeMillis() / 1000; // maybe put this as first thing in method
 		long gSessionStart = time;  // fake
@@ -80,17 +96,23 @@ public class QzStats {
 		template.addReplacement("totalm1", "" + promptQord);
 		template.setStringVisibility(5, bPrintYouTookAnAverage);
 		template.setStringVisibility(6, bPrintCongratulations);
-		template.setStringVisibility(1, bPrintUnseen);
+		template.addReplacement("total", total);
+		template.setStringVisibility(11, bPrintUnseen);  // it was 1, I changed it to 11?
+		template.addReplacement("unseenpercent", unseenpercent);
 		template.setStringVisibility(12, bPrintUnseen);
 		template.addReplacement("solved", "" + solved);
+		template.setStringVisibility(14, bPrintSolvedPercent);
 		template.addReplacement("solvedpercent", "" + solvedpercent);
 		template.addReplacement("unsolved", "" + unsolved);
+		template.setStringVisibility(16, bPrintUnSolvedPercent);
 		template.addReplacement("unsolvedpercent", "" + unsolvedpercent);
-		template.setStringVisibility(15, bPrintMeanDifficulty);
-		template.setStringVisibility(16, bPrintMeanSolutionTime);
+		template.setStringVisibility(17, bPrintMeanSolutionTime);
 		template.addReplacement("meansolutiontime", meansolutiontime);
+		template.setStringVisibility(18, bPrintMeanDifficulty);
+		template.addReplacement("meandifficulty", meandifficulty);
+		template.setStringVisibility(19, bPrintMeanSolutionAge);
 		template.addReplacement("meansolutionage", meansolutionage);
-		template.addReplacement(oldestsolution, oldestsolution);
+		template.addReplacement("oldestsolution", oldestsolution);
 			
 		String sResult = "";
 		sResult = template.getResults();

@@ -31,7 +31,8 @@ public class Qz {
 	}
 	
 	// TODO this method is not functional
-	// it modifies the stats.iTotalCorrect
+	// it modifies the stats.iTotalCorrect, iTotalAsked
+	// modifies passed param: questions
 	public String processResponses(List<QzQuestion> questions, String[] responses) {
 		String sReturn = "";
 		int i = 0;
@@ -41,6 +42,7 @@ public class Qz {
 			sReturn += String.format("[%d] %s: %s\n", i + 1, q.question, response);
 			boolean bCorrect = response.equalsIgnoreCase(q.answer);
 			String sOldRatingString = q.unseen ? "new" : q.srating;
+			stats.iTotalAsked++;
 			if (bCorrect) {
 				String sAgeStuff = "never";
 				if (q.age != 0) sAgeStuff = "6 d";
@@ -48,7 +50,7 @@ public class Qz {
 				sReturn += String.format("Correct.  (%s:%s-%d)\n", sAgeStuff, sOldRatingString, newRating);
 				stats.iTotalCorrect++;
 				// TODO not functional
-				q.age = System.currentTimeMillis()/1000;
+				q.age = (long)System.currentTimeMillis()/1000;
 			} 
 			else {
 				sReturn += String.format("The correct answer is '%s'  (%s-%s)\n", q.answer, sOldRatingString, "100");
