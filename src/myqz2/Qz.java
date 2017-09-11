@@ -36,6 +36,7 @@ public class Qz {
 	public String processResponses(List<QzQuestion> questions, String[] responses) {
 		String sReturn = "";
 		int i = 0;
+		long now = (long)System.currentTimeMillis()/1000;
 		for (String response : responses) {
 			QzQuestion q = questions.get(i);
 			int newRating = q.rating;
@@ -45,12 +46,12 @@ public class Qz {
 			stats.iTotalAsked++;
 			if (bCorrect) {
 				String sAgeStuff = "never";
-				if (q.age != 0) sAgeStuff = "7 d";
+				if (q.age != 0) sAgeStuff = QzUtils.secondsToHuman(now - q.age);//sAgeStuff = "7 d";
 				newRating = q.unseen ? 1 : (int) (q.rating * .667);
 				sReturn += String.format("Correct.  (%s:%s-%d)\n", sAgeStuff, sOldRatingString, newRating);
 				stats.iTotalCorrect++;
 				// TODO not functional
-				q.age = (long)System.currentTimeMillis()/1000;
+				q.age = now;
 			} 
 			else {
 				sReturn += String.format("The correct answer is '%s'  (%s-%s)\n", q.answer, sOldRatingString, "100");

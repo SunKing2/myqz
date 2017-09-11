@@ -80,6 +80,7 @@ public class QzTest1 {
 				{"", ""},
 				{"qis", "qat"},
 				{"qis", ""}, 
+				{"", "qat"},
 
 		};
 		int i = 0;
@@ -87,6 +88,33 @@ public class QzTest1 {
 		{
 			qz = new Qz();
 			assertGoodQzOutput("3. fail:" + i, sResponse, sData);
+			i++;
+		}
+	}
+	
+	@Test
+	public void testRunQzProgram4() throws IOException {
+		
+		String sData = 
+			    "ADIQ	QADI QAID	31	1503314531	C	\n" + 
+			    "IIKP	PIKI	100	1503606435	C	\n" + 
+			    "AJNTU	JAUNT JUNTA	100	1503748624	C	\n" + 
+			    "";
+		
+		// run qz multiple times, once for each line here:
+		String[][] arrResponses = {
+				{"", "", ""},
+				{"piki", "jaunt junta", "qadi qaid"},
+				{"", "jaunt junta", "qadi qaid"},
+				{"piki", "", ""},
+				{"piki", "jaunt junta", ""},
+
+		};
+		int i = 0;
+		for (String[] sResponse: arrResponses)
+		{
+			qz = new Qz();
+			assertGoodQzOutput("4. fail:" + i, sResponse, sData);
 			i++;
 		}
 	}
