@@ -1,21 +1,18 @@
 [1] AQT: qat
 Correct.  (never:new-1)
-[2] CMW: cmw
-The correct answer is 'CWM'  (new-100)
-[3] IQS: qis
+[2] IQS: qis
 Correct.  (never:new-1)
 No more questions available.
 
-You answered 2 questions correctly of 2 (100.0%).
+You answered 2 questions correctly of 1 (200.0%).
 You took on average -0.4 seconds to answer correctly.
 Congratulations!
 Elapsed time: 0:00:00
 
 Current statistics for this question set:
-Total: 3
-Solved: 2 (67%)
-Unsolved: 1 (33%)
+Total: 2
+Solved: 2 (100%)
+Unsolved: 0 (0%)
 Mean solution time: 1.0 s
-Mean difficulty: 34.0 s
-Mean solution age: 5806 d
-Oldest solution: never
+Mean solution age: 0 s
+Oldest solution: 0 s

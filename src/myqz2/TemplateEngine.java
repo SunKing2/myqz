@@ -54,7 +54,7 @@ public class TemplateEngine {
 	
 	public void addReplacement(String stringToReplace, String finalValue) {
 		mapOfReplacements.put("${" + stringToReplace + "}", finalValue);
-		System.out.println("map=" + mapOfReplacements);
+		//System.out.println("map=" + mapOfReplacements);
 	}
 	
 	// this processes the template by substituting strings, 

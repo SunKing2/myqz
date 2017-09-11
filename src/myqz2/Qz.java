@@ -45,7 +45,7 @@ public class Qz {
 			stats.iTotalAsked++;
 			if (bCorrect) {
 				String sAgeStuff = "never";
-				if (q.age != 0) sAgeStuff = "6 d";
+				if (q.age != 0) sAgeStuff = "7 d";
 				newRating = q.unseen ? 1 : (int) (q.rating * .667);
 				sReturn += String.format("Correct.  (%s:%s-%d)\n", sAgeStuff, sOldRatingString, newRating);
 				stats.iTotalCorrect++;
@@ -54,6 +54,7 @@ public class Qz {
 			} 
 			else {
 				sReturn += String.format("The correct answer is '%s'  (%s-%s)\n", q.answer, sOldRatingString, "100");
+				newRating = 100;
 			}
 			// TODO not functional, modifies param:
 			q.unseen = false;
